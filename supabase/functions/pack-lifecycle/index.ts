@@ -1,4 +1,4 @@
-import { createClient } from "npm:@supabase/supabase-js@2.57.0";
+import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 import { BlobReader, TextWriter, ZipReader } from "https://deno.land/x/zipjs/index.js";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
