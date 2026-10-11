@@ -1,287 +1,177 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f8f9fc"><title>RAGTerminal Hub — Community</title><meta name="description" content="Discover community Knowledge, Flows, Blocks, Scripts and Plays for RAGTerminal.">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>RAGTerminal — Build, organize and reuse RAG workflows</title>
+<meta name="description" content="RAGTerminal is a macOS workbench for organizing knowledge, composing RAG flows, reusing blocks, automating scripts and packaging repeatable plays.">
 <style>
-:root{--ink:#172033;--muted:#738096;--line:#e4e8ef;--blue:#375df5;--bg:#f8f9fc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.wrap{max-width:1240px;margin:auto;padding:0 26px}.top{height:70px;background:#ffffffed;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:3;backdrop-filter:blur(12px)}.nav{height:100%;display:flex;align-items:center;gap:26px}.brand{font-weight:850;letter-spacing:-.5px;font-size:17px;display:flex;align-items:center;gap:10px}.logo{background:#172033;color:white;border-radius:10px;width:34px;height:34px;display:grid;place-items:center}.links{display:flex;gap:22px;color:#758094;font-size:12px;font-weight:700}.right{margin-left:auto;display:flex;align-items:center;gap:9px}.btn{border:1px solid var(--line);background:white;border-radius:10px;padding:10px 14px;font-weight:750;color:var(--ink)}.btn.main{background:var(--blue);color:white;border-color:var(--blue)}.status{background:#fff5dc;color:#89651b;padding:5px 8px;border-radius:7px;font-size:10px;font-weight:850}.hero{padding:48px 0 23px}.eyebrow{text-transform:uppercase;letter-spacing:1.7px;font-weight:850;color:var(--blue);font-size:10px}.hero h1{font-size:clamp(32px,4vw,47px);line-height:1.1;letter-spacing:-1.9px;margin:12px 0}.hero h1 span{color:#7c879a}.hero p{max-width:650px;color:var(--muted);font-size:14px;line-height:1.75;margin:0}.searchrow{display:flex;gap:10px;margin:20px 0 27px}.search{display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--line);border-radius:12px;padding:0 14px;height:48px;flex:1}.search input{border:0;outline:0;flex:1;min-width:0}.layout{display:grid;grid-template-columns:220px 1fr;gap:25px;padding-bottom:60px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:12px}.sidehead{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:#96a0af;font-weight:850;margin:4px 8px 10px}.sidebtn{border:0;background:transparent;width:100%;padding:9px 10px;text-align:left;border-radius:8px;display:flex;gap:9px;color:#5e6a7f;font-weight:650;font-size:12px}.sidebtn.active,.sidebtn:hover{background:#edf1ff;color:#3154e9}.num{margin-left:auto;color:#97a1b0}.tags,.pills{display:flex;gap:6px;flex-wrap:wrap;padding:4px}.tag,.pill{border:1px solid var(--line);border-radius:6px;background:#fafbfd;color:#707d91;font-size:10px;padding:5px 7px}.tag.active{color:#3154e9;background:#edf1ff}.stat{padding:8px 7px;display:flex;gap:10px;align-items:center}.staticon{width:32px;height:32px;background:#edf1ff;color:#4260e6;border-radius:9px;display:grid;place-items:center}.stat strong{display:block;font-size:17px;line-height:1.2}.stat small{color:#99a2af;font-size:10px}.subnote{font-size:10px;color:#8a95a6;padding:10px 7px 1px;line-height:1.6}.catalogline{display:flex;align-items:center;gap:16px;color:#7d889a;font-size:11px;margin:2px 0 13px}.catalogline b{color:#344056}.dot{width:7px;height:7px;display:inline-block;border-radius:9px;background:#22a27f;margin-right:6px}.tabs{display:flex;overflow:auto;border-bottom:1px solid var(--line);gap:3px;margin-bottom:17px}.tab{background:transparent;border:0;color:#768196;border-bottom:2px solid transparent;padding:12px;white-space:nowrap;font-size:12px;font-weight:750;margin-bottom:-1px}.tab.active{color:#3154e9;border-bottom-color:var(--blue)}.tab span{color:#a2aab7;font-size:10px;margin-left:4px}.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}.results{color:#8490a2;font-size:11px}.results b{color:#344056}.tools{margin-left:auto}.tools select{border:1px solid var(--line);background:white;border-radius:8px;padding:8px 10px;color:#647085;font-size:11px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:15px;cursor:pointer;transition:.15s;min-width:0}.card:hover{transform:translateY(-2px);border-color:#cbd4e3;box-shadow:0 8px 25px #2030500a}.c-head{display:flex;gap:10px;align-items:flex-start}.ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:19px;flex:none}.knowledge .ico{background:#edf1ff}.flow .ico{background:#e6f7ef}.block .ico{background:#f3eaff}.script .ico{background:#fff2dc}.play .ico{background:#ffedf0}.ctitle{font-weight:820;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.owner{color:#8c96a5;font-size:10px;margin-top:4px}.kind{margin-left:auto;border-radius:6px;padding:4px 6px;font-size:9px;font-weight:850;white-space:nowrap}.knowledge .kind{color:#3d5bd8;background:#edf1ff}.flow .kind{color:#127a5f;background:#e6f7ef}.block .kind{color:#8d50c7;background:#f3eaff}.script .kind{color:#9d6819;background:#fff2dc}.play .kind{color:#c64b66;background:#ffedf0}.desc{height:39px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:#6e7a8e;font-size:11px;line-height:1.65;margin:12px 0}.foot{border-top:1px solid #f0f2f6;display:flex;align-items:center;gap:12px;margin-top:12px;padding-top:11px;color:#909aaa;font-size:10px}.license{margin-left:auto;background:#f4f6f9;border-radius:5px;padding:3px 5px;font-size:9px}.star{border:0;background:transparent;color:#9aa3b2;font-size:15px;padding:0}.star.sel{color:#e2a72c}.empty{grid-column:1/-1;border:1px dashed #d5dce8;border-radius:14px;background:white;text-align:center;padding:45px;color:#7c879a}.footer{border-top:1px solid var(--line);padding:20px 0;color:#939cab;font-size:10px}.footer .wrap{display:flex;justify-content:space-between;gap:12px}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,15px);opacity:0;background:#172033;color:white;padding:11px 15px;border-radius:10px;font-size:12px;z-index:10;transition:.2s;max-width:90vw}.toast.show{opacity:1;transform:translate(-50%,0)}@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.panel{margin:0}.links{gap:12px}}@media(max-width:620px){.wrap{padding:0 14px}.top{height:62px}.links,.status{display:none}.hero{padding-top:34px}.layout{gap:16px}.sidebar{grid-template-columns:1fr}.sidebar .panel:not(:first-child){display:none}.cards{grid-template-columns:1fr}.tab{padding:12px 9px}.catalogline span:nth-child(2){display:none}.tools{margin-left:0}.footer .wrap{flex-direction:column}}
-</style></head><body>
-<header class="top"><div class="wrap nav"><div class="brand"><span class="logo">⬡</span><span>RAGTerminal <span style="color:#8490a2;font-weight:600">Hub</span></span></div><nav class="links"><span>Discover</span><span>Collections</span><span>Docs</span></nav><div class="right"><span id="status" class="status">CONNECTING</span><button class="btn" id="signin">Sign in</button><button class="btn main" id="upload">＋ Upload asset</button></div></div></header>
-<main class="wrap"><section class="hero"><div class="eyebrow">● The community hub</div><h1>Find the building blocks<br><span>for your next RAG system.</span></h1><p>Explore community-published knowledge, flows, blocks, scripts and plays. Reuse what works, learn from the structure, and share improvements with the community.</p></section>
-<div class="searchrow"><label class="search">⌕ <input id="q" type="search" placeholder="Search assets, tasks, tags, or creators…"><span style="color:#a3acb9;font-size:10px">/</span></label><button class="btn" id="reset">Reset filters</button></div>
-<div class="layout"><aside class="sidebar"><section class="panel"><div class="sidehead">Explore</div><button class="sidebtn active" data-side="all">▦ All assets <span class="num" id="all-count">12</span></button><button class="sidebtn" data-side="trending">♨ Trending <span class="num">↗</span></button><button class="sidebtn" data-side="recent">◷ Recently updated</button><button class="sidebtn" data-side="starred">☆ Your starred assets</button></section><section class="panel"><div class="sidehead">Popular topics</div><div class="tags"><button class="tag" data-tag="RAG">RAG</button><button class="tag" data-tag="retrieval">retrieval</button><button class="tag" data-tag="agents">agents</button><button class="tag" data-tag="evaluation">evaluation</button><button class="tag" data-tag="vector-search">vector-search</button><button class="tag" data-tag="ingestion">ingestion</button><button class="tag" data-tag="support">support</button><button class="tag" data-tag="research">research</button></div></section><section class="panel"><div class="sidehead">Hub at a glance</div><div class="stat"><span class="staticon">⬡</span><div><strong id="asset-stat">—</strong><small>Assets published</small></div></div><div class="stat"><span class="staticon" style="background:#e7f7f0;color:#148267">♧</span><div><strong>—</strong><small>Contributors</small></div></div><div class="stat"><span class="staticon" style="background:#fff2dc;color:#b7791f">⇩</span><div><strong id="download-stat">—</strong><small>Signed-in download events</small></div></div><div class="subnote">Community metrics will populate as publishing and usage tracking are enabled.</div></section></aside>
-<section><div class="catalogline"><span><i class="dot"></i><b>Community catalog</b></span><span>Curated assets for reusable RAG systems</span><span style="margin-left:auto" id="catalog-mode">Supabase catalog</span></div><div class="tabs" role="tablist"><button class="tab active" data-cat="all">All assets <span>12</span></button><button class="tab" data-cat="knowledge">Knowledge <span>3</span></button><button class="tab" data-cat="flow">Flows <span>3</span></button><button class="tab" data-cat="block">Blocks <span>2</span></button><button class="tab" data-cat="script">Scripts <span>2</span></button><button class="tab" data-cat="play">Plays <span>2</span></button></div><div class="toolbar"><div class="results"><b id="count">Loading assets…</b> <span id="label">from the community catalog</span></div><div class="tools"><select id="sort"><option value="trending">Trending</option><option value="downloads">Most downloaded</option><option value="recent">Recently updated</option><option value="stars">Most starred</option><option value="az">Name A–Z</option></select></div></div><div class="cards" id="cards"></div></section></div></main>
-<footer class="footer"><div class="wrap"><span>© 2026 RAGTerminal Hub · Community</span><span>Licensing &nbsp; · &nbsp; Safety &nbsp; · &nbsp; Status</span></div></footer><div class="toast" id="toast" role="status"></div>
-<script>
-const SUPABASE_URL="https://zjifbqdvbmvuiwgwdkey.supabase.co";
-const SUPABASE_KEY="sb_publishable_cyOdOu5OkDSr8tX-EvbiqQ_oNbc3KHC";
-const demos=[
-{name:"Customer Support Knowledge Base",type:"knowledge",owner:"acme-ai",description:"A starter corpus for support agents, with policies, product FAQs and escalation guidance.",tags:["RAG","support","ingestion"],stars:248,downloads:4200,updated_at:"2026-10-09",license:"CC BY 4.0",slug:"customer-support-kb",version:"1.0.0"},
-{name:"Hybrid Retrieval Pipeline",type:"flow",owner:"mira-labs",description:"Combines keyword and vector retrieval with reranking and configurable result limits.",tags:["retrieval","vector-search","RAG"],stars:192,downloads:3100,updated_at:"2026-10-10",license:"Apache-2.0",slug:"hybrid-retrieval",version:"1.2.0"},
-{name:"PII Redaction Block",type:"block",owner:"safety-stack",description:"Detects and masks common personally identifiable information before indexing or output.",tags:["safety","privacy","ingestion"],stars:176,downloads:2860,updated_at:"2026-10-07",license:"MIT",slug:"pii-redaction",version:"1.0.1"},
-{name:"Research Assistant Starter Play",type:"play",owner:"paperplane",description:"An end-to-end research assistant with source gathering, citation checks and synthesis.",tags:["research","agents","evaluation"],stars:163,downloads:2430,updated_at:"2026-10-11",license:"Apache-2.0",slug:"research-assistant",version:"0.9.0"},
-{name:"JSONL Dataset Auditor",type:"script",owner:"devtools-lab",description:"Checks JSONL formatting, required fields, duplicate IDs and broken entity references.",tags:["quality","ingestion","JSONL"],stars:119,downloads:1980,updated_at:"2026-10-08",license:"MIT",slug:"jsonl-auditor",version:"1.1.0"},
-{name:"Product Documentation Mini Corpus",type:"knowledge",owner:"northstar",description:"Product docs organized by topic with stable IDs, metadata and cross-reference links.",tags:["documentation","RAG","retrieval"],stars:94,downloads:1520,updated_at:"2026-10-04",license:"CC BY-SA 4.0",slug:"product-docs-mini",version:"1.0.0"},
-{name:"Document Ingestion & Enrichment",type:"flow",owner:"vector-garden",description:"A reusable ingestion sequence for parsing, metadata enrichment, chunking and indexing.",tags:["ingestion","chunking","vector-search"],stars:88,downloads:1320,updated_at:"2026-10-06",license:"Apache-2.0",slug:"document-ingestion",version:"2.0.0"},
-{name:"Citation Formatter",type:"block",owner:"paperplane",description:"Normalizes source metadata into readable citations and structured source references.",tags:["citations","retrieval","RAG"],stars:76,downloads:1040,updated_at:"2026-09-27",license:"MIT",slug:"citation-formatter",version:"1.0.0"},
-{name:"Embedding Model Benchmark",type:"script",owner:"evalworks",description:"Compares embedding configurations against a labeled query set and reports retrieval metrics.",tags:["evaluation","embeddings","benchmark"],stars:73,downloads:980,updated_at:"2026-10-02",license:"Apache-2.0",slug:"embedding-benchmark",version:"0.6.0"},
-{name:"Tool-Aware Agent Router",type:"flow",owner:"mira-labs",description:"Routes tasks to approved tools using explicit capability declarations and fallback paths.",tags:["agents","routing","safety"],stars:68,downloads:870,updated_at:"2026-09-20",license:"Apache-2.0",slug:"tool-aware-router",version:"1.0.0"},
-{name:"Entity & Relationship Demo Graph",type:"knowledge",owner:"graphworks",description:"A small knowledge graph sample with entities, typed relationships and source provenance.",tags:["knowledge-graph","entities","research"],stars:55,downloads:760,updated_at:"2026-09-29",license:"CC BY 4.0",slug:"entity-relationship-demo",version:"1.0.0"},
-{name:"Internal Helpdesk Play",type:"play",owner:"acme-ai",description:"A helpdesk setup tying together approved knowledge, retrieval flow, safety blocks and evaluation.",tags:["support","agents","evaluation"],stars:51,downloads:710,updated_at:"2026-09-11",license:"CC BY-NC 4.0",slug:"internal-helpdesk",version:"1.0.0"}];
-let assets=[],cat="all",side="all",tag="",query="",sort="recent",catalogLoading=true,catalogLoadError=false,catalogErrorMessage="",previewDemos=false,metricsLoading=false,metricsAvailable=false;const starred=new Set();const glyph={knowledge:"▤",flow:"⑂",block:"▦",script:"‹/›",play:"▷"};const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
-function notify(t){$("#toast").textContent=t;$("#toast").classList.add("show");setTimeout(()=>$("#toast").classList.remove("show"),2600)}
-function text(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;e.textContent=value??"";return e}
-function fmt(n){return n>=1000?(n/1000).toFixed(1).replace(".0","")+"k":String(n||0)}
-function loadDemoCatalog(){
-  previewDemos=true;catalogLoadError=false;catalogErrorMessage="";
-  assets=demos.map((a,i)=>({...a,id:"demo-"+i,updated_at:a.updated_at,source:"demo"}));
-  cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value=sort;
-  $("#status").textContent="PREVIEW DATA";$("#catalog-mode").textContent="Sample cards · not public listings";
-  $("#status").style.background="#fff2dc";$("#status").style.color="#9d6819";
-  render();
-}
-async function refreshStarredState(){
-  const api=window.ragHubCommunityAPI;
-  const ids=assets.filter(a=>a.source==="supabase").map(a=>a.id);
-  if(!api||!ids.length)return;
-  try{
-    const result=await api.loadStars(ids);
-    starred.clear();(result||[]).forEach(id=>starred.add(id));
-    render();
-  }catch(error){console.warn("Could not load saved community stars",error)}
-}
-function render(){
-  const live=assets.some(a=>a.source==="supabase");
-  const sortSelect=$("#sort");
-  [["trending","Trending"],["downloads","Most downloaded"],["stars","Most starred"]].forEach(([value,label])=>{
-    const option=sortSelect.querySelector('option[value="'+value+'"]');
-    const unavailable=live&&!metricsAvailable;
-    if(option){option.disabled=unavailable;option.textContent=unavailable?label+(metricsLoading?" (loading…)":" (unavailable)"):label}
-  });
-  const trendingButton=$('[data-side="trending"]');
-  if(trendingButton){
-    trendingButton.disabled=live&&!metricsAvailable;
-    trendingButton.title=live&&!metricsAvailable?"Community activity metrics are loading or temporarily unavailable.":"Sort by engagement metrics.";
-  }
-  if(live&&!metricsAvailable&&["trending","downloads","stars"].includes(sort)){sort="recent";sortSelect.value="recent"}
-  if(live&&!metricsAvailable&&side==="trending")side="recent";
-  let rows=assets.filter(a=>(cat==="all"||a.type===cat)&&(!query||[a.name,a.owner,a.description,a.type,...(a.tags||[])].join(" ").toLowerCase().includes(query.toLowerCase()))&&(!tag||(a.tags||[]).some(t=>t.toLowerCase()===tag.toLowerCase()))&&(side!=="starred"||starred.has(a.id)));
-  if(side==="trending")rows.sort((a,b)=>(b.stars+b.downloads/25)-(a.stars+a.downloads/25));
-  if(side==="recent")rows.sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
-  if(sort==="downloads")rows.sort((a,b)=>b.downloads-a.downloads);
-  if(sort==="stars")rows.sort((a,b)=>b.stars-a.stars);
-  if(sort==="az")rows.sort((a,b)=>a.name.localeCompare(b.name));
-  if(sort==="recent")rows.sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
-  $("#count").textContent=rows.length+" asset"+(rows.length===1?"":"s");
-  $("#label").textContent=query||tag?"matching your filters":live?"published community assets":"available to explore";
-  $("#all-count").textContent=assets.length;$("#asset-stat").textContent=assets.length;
-  $$("[data-cat]").forEach(b=>{b.classList.toggle("active",b.dataset.cat===cat);const n=b.querySelector("span");if(n)n.textContent=b.dataset.cat==="all"?assets.length:assets.filter(a=>a.type===b.dataset.cat).length});
-  $$("[data-side]").forEach(b=>b.classList.toggle("active",b.dataset.side===side));
-  $$("[data-tag]").forEach(b=>b.classList.toggle("active",b.dataset.tag===tag));
-  const root=$("#cards");root.replaceChildren();
-  if(!rows.length){
-    const empty=text("div","empty",assets.length?"No matching assets. Try another search or reset filters.":catalogLoading?"Loading published community assets…":catalogLoadError?"The community catalog could not be reached.":"No community assets have been published yet.");
-    if(!assets.length&&!catalogLoading){
-      empty.append(text("p","",catalogLoadError?(catalogErrorMessage||"Check your connection and retry."):"Published assets will appear here after moderator approval."));
-      if(catalogLoadError){const retry=text("button","btn secondary","Retry catalog connection");retry.type="button";retry.onclick=()=>loadCatalog();empty.append(retry)}
-      const demo=text("button","btn main","Preview example cards");demo.type="button";demo.style.marginLeft="8px";demo.onclick=loadDemoCatalog;empty.append(demo);
-    }
-    root.append(empty);return;
-  }
-  rows.forEach(a=>{
-    const card=text("article","card "+a.type);card.tabIndex=0;
-    const head=text("div","c-head","");head.append(text("span","ico",glyph[a.type]||"▤"));
-    const titleWrap=text("div","","");titleWrap.style.cssText="min-width:0;flex:1";
-    titleWrap.append(text("div","ctitle",a.name),text("div","owner","◉ "+a.owner));
-    head.append(titleWrap,text("span","kind",a.type.toUpperCase()));card.append(head,text("p","desc",a.description));
-    const pills=text("div","pills","");(a.tags||[]).slice(0,3).forEach(t=>{const b=text("button","pill",t);b.onclick=e=>{e.stopPropagation();tag=t;side="all";render()};pills.append(b)});card.append(pills);
-    const foot=text("div","foot","");
-    if(a.source==="demo")foot.append(text("span","","☆ "+fmt(a.stars)),text("span","","⇩ "+fmt(a.downloads)));
-    else if(metricsAvailable)foot.append(text("span","","★ "+fmt(a.stars)),text("span","","⇩ "+fmt(a.downloads)));
-    foot.append(text("span","","◷ "+(a.updated_at?new Date(a.updated_at).toLocaleDateString():"—")),text("span","license",a.license||"License unspecified"));
-    const star=text("button","star "+(starred.has(a.id)?"sel":""),starred.has(a.id)?"★":"☆");
-    star.setAttribute("aria-label",starred.has(a.id)?"Remove from starred assets":"Save to starred assets");
-    star.title=starred.has(a.id)?"Remove star":"Save star";
-    star.onclick=async e=>{
-      e.stopPropagation();
-      if(a.source==="demo"){starred.has(a.id)?starred.delete(a.id):starred.add(a.id);render();return}
-      const api=window.ragHubCommunityAPI;
-      if(!api){notify("Community account service is still loading. Try again.");return}
-      star.disabled=true;
-      try{
-        const result=await api.toggleStar(a.id,starred.has(a.id));
-        if(result?.requiresSignIn){notify("Sign in to save community stars.");window.ragHubOpenAccount?.("signin");return}
-        if(result?.starred)starred.add(a.id);else starred.delete(a.id);
-        await refreshPublicMetrics();
-        render();
-      }catch(error){notify(error.message||"Could not save this star. Please retry.")}
-      finally{star.disabled=false}
-    };
-    foot.append(star);
-    if(a.package_path){
-      const dl=document.createElement("a");dl.className="pill";dl.textContent="⇩ Get package";dl.style.cssText="text-decoration:none;color:#3154e9;font-weight:800;white-space:nowrap";
-      const objectPath=a.package_path.split("/").map(encodeURIComponent).join("/");
-      dl.href=SUPABASE_URL+"/storage/v1/object/public/community-releases/"+objectPath+"?download="+encodeURIComponent((a.slug||"RAGTerminal")+".pack");
-      dl.setAttribute("aria-label","Get published RAGTerminal package for in-app installation");
-      dl.onclick=e=>{
-        e.stopPropagation();e.preventDefault();const href=dl.href;
-        (async()=>{try{await window.ragHubCommunityAPI?.recordDownload(a.id)}catch(error){console.warn("Community download metric was not recorded",error)}finally{window.location.assign(href)}})();
-      };
-      foot.append(dl);
-    }
-    card.append(foot);
-    card.onclick=()=>{if(a.source==="supabase"){window.location.href="/asset.html?id="+encodeURIComponent(a.id)}else notify("Example asset only — sample cards are not published or installable.")};
-    card.onkeydown=e=>{if(e.key==="Enter")card.click()};
-    root.append(card);
-  });
-}
-async function refreshPublicMetrics(){
-  const ids=assets.filter(a=>a.source==="supabase").map(a=>a.id);
-  if(!ids.length){
-    metricsAvailable=false;metricsLoading=false;
-    $("#download-stat").textContent="—";
-    return;
-  }
-  metricsLoading=true;
-  if(!metricsAvailable)render();
-  try{
-    const values=new Map();
-    for(let start=0;start<ids.length;start+=100){
-      const artifact_ids=ids.slice(start,start+100);
-      const response=await fetch(SUPABASE_URL+"/functions/v1/community-metrics",{
-        method:"POST",
-        headers:{
-          apikey:SUPABASE_KEY,
-          Authorization:"Bearer "+SUPABASE_KEY,
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify({artifact_ids})
-      });
-      if(!response.ok)throw new Error("Metrics HTTP "+response.status);
-      const result=await response.json();
-      if(!result||result.ok!==true||!Array.isArray(result.items))throw new Error("Metrics response was invalid.");
-      for(const item of result.items){
-        if(typeof item.artifact_id!=="string")continue;
-        values.set(item.artifact_id,{
-          stars:Math.max(0,Number(item.stars_count)||0),
-          downloads:Math.max(0,Number(item.downloads_count)||0)
-        });
-      }
-    }
-    assets=assets.map(a=>{
-      if(a.source!=="supabase")return a;
-      const value=values.get(a.id);
-      if(!value)throw new Error("Metrics missing for a currently published artifact.");
-      return {...a,stars:value.stars,downloads:value.downloads};
-    });
-    metricsAvailable=true;
-    $("#download-stat").textContent=fmt(assets.filter(a=>a.source==="supabase").reduce((total,a)=>total+a.downloads,0));
-  }catch(error){
-    metricsAvailable=false;
-    assets=assets.map(a=>a.source==="supabase"?{...a,stars:null,downloads:null}:a);
-    $("#download-stat").textContent="—";
-    console.warn("Community engagement metrics are unavailable",error);
-  }finally{
-    metricsLoading=false;
-    render();
-  }
-}
-async function loadCatalog(){
-  catalogLoading=true;catalogLoadError=false;catalogErrorMessage="";previewDemos=false;
-  metricsAvailable=false;metricsLoading=false;$("#download-stat").textContent="—";
-  try{
-    const pageSize=100,maximumAssets=10000;let offset=0;const data=[];
-    while(data.length<maximumAssets){
-      const p=new URLSearchParams({
-        select:"id,slug,title,description,artifact_type,tags,license,latest_version,updated_at,repository:community_repositories!inner(slug,title,visibility,status,package_storage_path,latest_version)",
-        status:"eq.published","repository.status":"eq.published","repository.visibility":"eq.public",
-        order:"updated_at.desc,id.asc",limit:String(pageSize),offset:String(offset)
-      });
-      const response=await fetch(SUPABASE_URL+"/rest/v1/community_artifacts?"+p.toString(),{headers:{apikey:SUPABASE_KEY,Accept:"application/json"}});
-      if(!response.ok)throw new Error("Catalog HTTP "+response.status);
-      const page=await response.json();
-      if(!Array.isArray(page))throw new Error("Catalog response was not a list.");
-      data.push(...page);
-      if(page.length<pageSize)break;
-      offset+=page.length;
-    }
-    const truncated=data.length>=maximumAssets;
-    assets=data.map(a=>({
-      id:a.id,name:a.title,type:a.artifact_type,owner:a.repository?.slug||"community",
-      description:a.description||"",tags:a.tags||[],stars:null,downloads:null,updated_at:a.updated_at,
-      license:a.license||"License unspecified",slug:a.slug,version:a.latest_version||a.repository?.latest_version,
-      package_path:a.repository?.package_storage_path||null,source:"supabase"
-    }));
-    $("#status").textContent="LIVE CATALOG";$("#status").style.background="#e5f8ef";$("#status").style.color="#167653";
-    $("#catalog-mode").textContent=truncated?"Supabase connected · first 10,000 assets":"Supabase connected";
-    if(truncated)console.warn("Catalog is capped at 10,000 assets in one browser session. Larger catalogs should add server filters.");
-    sort="recent";$("#sort").value="recent";side="all";
-  }catch(error){
-    assets=[];catalogLoadError=true;catalogErrorMessage=error.message||"Catalog request failed.";
-    $("#status").textContent="CATALOG UNAVAILABLE";$("#status").style.background="#fff1f0";$("#status").style.color="#b42318";
-    $("#catalog-mode").textContent="Supabase catalog unavailable";
-    console.warn("Could not load public catalog",error);
-  }finally{
-    catalogLoading=false;render();
-    await refreshPublicMetrics();
-    await refreshStarredState();
-  }
-}
-window.ragHubReloadCatalog = loadCatalog;
-$$("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;side="all";render()});$$("[data-side]").forEach(b=>b.onclick=()=>{side=b.dataset.side;cat="all";render()});$$("[data-tag]").forEach(b=>b.onclick=()=>{tag=tag===b.dataset.tag?"":b.dataset.tag;side="all";render()});$("#q").oninput=e=>{query=e.target.value.trim();side="all";render()};$("#sort").onchange=e=>{sort=e.target.value;render()};
-window.addEventListener("ragHubCommunityAPIReady",refreshStarredState);
-window.addEventListener("ragHubAuthChanged",refreshStarredState);$("#reset").onclick=()=>{cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value="trending";render()};$("#signin").onclick=null;$("#upload").onclick=null;document.addEventListener("keydown",e=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}});render();loadCatalog();
-</script>
-<div id="account-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:#10182888;backdrop-filter:blur(4px);z-index:30">
-  <section role="dialog" aria-modal="true" aria-labelledby="account-title" style="width:min(100%,500px);max-height:90vh;overflow:auto;background:#fff;border:1px solid #e4e8ef;border-radius:18px;padding:24px;box-shadow:0 25px 80px #11182733">
-    <div style="display:flex;align-items:flex-start;gap:12px">
-      <div style="flex:1"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#375df5;font-weight:850">RAGTerminal Hub</div><h2 id="account-title" style="font-size:23px;letter-spacing:-.6px;margin:7px 0 5px">Welcome back</h2><p id="account-subtitle" style="font-size:12px;color:#738096;margin:0 0 18px">Sign in to manage your community profile.</p></div>
-      <button id="modal-close" type="button" aria-label="Close dialog" style="border:1px solid #e4e8ef;background:white;border-radius:9px;width:36px;height:36px;font-size:19px">×</button>
-    </div>
-    <div id="account-alert" role="status" aria-live="polite" style="display:none;padding:10px 12px;background:#f3f6ff;color:#3154e9;border-radius:9px;font-size:12px;margin-bottom:14px"></div>
-    <div id="auth-switch" style="display:flex;gap:6px;background:#f5f7fb;border-radius:10px;padding:4px;margin-bottom:17px"><button id="mode-signin" type="button" class="btn" style="flex:1;border:0">Sign in</button><button id="mode-signup" type="button" class="btn" style="flex:1;border:0">Create account</button></div>
-    <form id="account-form" style="display:grid;gap:12px">
-      <label id="display-name-field" style="display:none;gap:5px;font-size:11px;font-weight:750;color:#465269">Display name<input id="display-name" maxlength="80" autocomplete="name" placeholder="How should we call you?" style="margin-top:4px;border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"></label>
-      <label id="username-field" style="display:none;gap:5px;font-size:11px;font-weight:750;color:#465269">Username<input id="username" maxlength="32" autocomplete="username" pattern="[A-Za-z0-9_-]{3,32}" placeholder="e.g. ragbuilder" style="margin-top:4px;border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"><span style="font-size:10px;font-weight:400;color:#8b95a5">3–32 letters, numbers, underscores or hyphens.</span></label>
-      <label id="avatar-field" style="display:none;gap:5px;font-size:11px;font-weight:750;color:#465269">Avatar image URL (optional)<input id="avatar-url" type="url" maxlength="500" placeholder="https://…" style="margin-top:4px;border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"></label>
-      <label id="bio-field" style="display:none;gap:5px;font-size:11px;font-weight:750;color:#465269">Short bio<textarea id="bio" rows="3" maxlength="500" placeholder="What are you building with RAGTerminal?" style="margin-top:4px;border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%;resize:vertical"></textarea></label>
-      <label id="email-field" style="display:grid;gap:5px;font-size:11px;font-weight:750;color:#465269">Email address<input id="email" type="email" required autocomplete="email" placeholder="you@example.com" style="margin-top:4px;border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"></label>
-      <label id="password-field" style="display:grid;gap:5px;font-size:11px;font-weight:750;color:#465269">Password<input id="password" type="password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters" style="margin-top:4px;border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"></label>
-      <button id="account-submit" class="btn main" type="submit" style="margin-top:4px">Sign in</button>
-      <button id="signout" class="btn" type="button" style="display:none">Sign out</button>
-    </form>
-    <p style="font-size:10px;color:#8b95a5;line-height:1.6;margin:16px 0 0">Your public profile is visible to the community. Your email address is not shown. Passwords are handled by Supabase Auth.</p>
-  </section>
+:root{--ink:#111;--muted:#656565;--line:#e2e2e2;--soft:#f6f6f6;--paper:#fff;--max:1260px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}button,input{font:inherit}
+.wrap{width:min(var(--max),100%);margin:0 auto;padding:0 24px}
+.top{position:sticky;top:0;z-index:10;height:70px;background:#ffffffed;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.nav{height:100%;display:flex;align-items:center;gap:44px}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:18px;font-weight:800;letter-spacing:-.65px;white-space:nowrap}
+.brand-mark{font-size:30px;line-height:1;font-weight:400}
+.brand small{font-size:11px;font-weight:500;letter-spacing:0;color:#777;margin-left:4px}
+.links{display:flex;align-items:center;gap:30px;margin-left:auto;height:100%}
+.links a{text-decoration:none;color:#414141;font-size:14px;padding:23px 0 21px;border-bottom:2px solid transparent}
+.links a:hover,.links a[aria-current=page]{color:#111;border-bottom-color:#111}
+.nav-cta,.button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 17px;border:1px solid #111;background:#111;color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.2px;transition:background .15s,color .15s}
+.nav-cta:hover,.button:hover{background:#333}
+.button.secondary{background:#fff;color:#111;border-color:#d5d5d5}
+.button.secondary:hover{background:#f5f5f5}
+.eyebrow{text-transform:uppercase;font-size:10px;letter-spacing:1.7px;font-weight:800;color:#555}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,.9fr);gap:58px;align-items:center;padding:76px 0 70px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(44px,5.4vw,70px);line-height:.99;letter-spacing:-3.9px;font-weight:720;margin:18px 0 22px;max-width:700px}
+.hero h1 span{color:#767676}
+.lead{max-width:620px;color:#555;font-size:16px;line-height:1.8;margin:0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.trustline{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:31px;color:#707070;font-size:11px}
+.trustline span{display:inline-flex;gap:7px;align-items:center}
+.tick{display:inline-grid;place-items:center;width:17px;height:17px;border:1px solid #ccc;border-radius:50%;font-size:10px;color:#111}
+.preview{border:1px solid #dcdcdc;min-width:0;background:#fff}
+.preview-top{height:42px;padding:0 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;color:#777;font-size:10px}
+.win-dot{height:7px;width:7px;border:1px solid #bdbdbd;border-radius:50%}
+.preview-title{margin-left:9px;text-transform:uppercase;letter-spacing:1.2px;font-size:9px;color:#666}
+.preview-body{display:grid;grid-template-columns:124px 1fr;min-height:318px}
+.preview-side{border-right:1px solid var(--line);padding:15px 9px}
+.side-label{text-transform:uppercase;letter-spacing:1.1px;color:#9a9a9a;font-size:9px;margin:3px 8px 10px}
+.side-item{display:flex;gap:8px;align-items:center;padding:9px 8px;font-size:10px;color:#555;margin-bottom:2px}
+.side-item.active{background:#f1f1f1;color:#111;font-weight:700}
+.side-square{width:12px;height:12px;border:1px solid #aaa;flex:none}
+.canvas{padding:22px 17px;display:flex;flex-direction:column;justify-content:center;gap:10px;background-image:linear-gradient(#f6f6f6 1px,transparent 1px),linear-gradient(90deg,#f6f6f6 1px,transparent 1px);background-size:22px 22px}
+.node{position:relative;background:#fff;border:1px solid #cfcfcf;padding:12px 13px;max-width:245px}
+.node-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#777}
+.node strong{display:block;font-size:12px;margin-top:3px}
+.node small{display:block;font-size:10px;color:#777;margin-top:2px}
+.node-row{display:flex;align-items:center;gap:10px}
+.node-row .node{flex:1}
+.node-arrow{font-size:17px;color:#555;text-align:center}
+.preview-foot{border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:11px 14px;color:#777;font-size:10px}
+.preview-foot strong{font-weight:700;color:#111}
+.module-strip{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--line)}
+.module{padding:19px 16px 18px;border-right:1px solid var(--line);min-width:0}
+.module:first-child{border-left:1px solid var(--line)}
+.module-label{font-size:12px;font-weight:750}
+.module-note{font-size:11px;color:#777;margin-top:4px}
+.section{padding:76px 0;border-bottom:1px solid var(--line)}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:30px}
+.section-head h2{font-size:clamp(29px,3.5vw,43px);letter-spacing:-1.8px;line-height:1.08;margin:10px 0 0;max-width:660px;font-weight:700}
+.section-head p{color:#666;max-width:390px;font-size:13px;line-height:1.8;margin:0}
+.capabilities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cap{position:relative;padding:24px 23px 27px;min-height:188px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+.cap-num{font-size:10px;letter-spacing:1px;color:#8a8a8a}
+.cap-mark{display:grid;place-items:center;width:34px;height:34px;border:1px solid #d7d7d7;margin:17px 0 15px;font-size:16px}
+.cap h3{font-size:17px;letter-spacing:-.3px;margin:0 0 7px}
+.cap p{font-size:12px;line-height:1.8;color:#666;margin:0;max-width:360px}
+.cap-link{display:inline-block;margin-top:14px;color:#111;font-size:11px;font-weight:700;text-decoration:none;border-bottom:1px solid #aaa;padding-bottom:2px}
+.use-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.use-card{padding:23px 22px 25px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);min-height:186px}
+.use-index{font-size:10px;letter-spacing:1px;color:#888}
+.use-card h3{font-size:17px;margin:22px 0 8px;letter-spacing:-.4px}
+.use-card p{font-size:12px;line-height:1.8;color:#666;margin:0}
+.workflow{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.step{padding:24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.step-num{font-size:11px;font-weight:700;color:#777}
+.step h3{font-size:19px;margin:23px 0 8px}
+.step p{font-size:12px;color:#666;line-height:1.8;margin:0}
+.benefits{display:grid;grid-template-columns:1.05fr 1fr;gap:60px;align-items:center;padding:72px 0}
+.benefits h2{font-size:clamp(30px,3.5vw,44px);line-height:1.08;letter-spacing:-1.8px;margin:10px 0 0}
+.benefit-list{border-top:1px solid var(--line)}
+.benefit{display:grid;grid-template-columns:24px 1fr;gap:13px;padding:16px 0;border-bottom:1px solid var(--line)}
+.benefit-index{font-size:10px;color:#777;padding-top:3px}
+.benefit strong{display:block;font-size:13px}
+.benefit p{font-size:12px;color:#666;margin:4px 0 0;line-height:1.7}
+.download-band{background:#111;color:white;padding:44px;display:flex;justify-content:space-between;align-items:center;gap:30px;margin-bottom:76px}
+.download-band h2{font-size:clamp(27px,3vw,38px);line-height:1.1;letter-spacing:-1.4px;margin:10px 0 8px}
+.download-band p{color:#c4c4c4;font-size:12px;line-height:1.8;max-width:600px;margin:0}
+.download-band .button{border-color:#fff;background:#fff;color:#111;white-space:nowrap}
+.download-band .button:hover{background:#eaeaea}
+.footer{border-top:1px solid var(--line);padding:21px 0;color:#777;font-size:11px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.footer-links{display:flex;gap:22px}.footer a{text-decoration:none}.footer a:hover{color:#111}
+@media(max-width:900px){.hero{grid-template-columns:1fr;gap:36px;padding:58px 0}.preview{max-width:650px}.section{padding:60px 0}.section-head{align-items:start;flex-direction:column;gap:12px}.benefits{grid-template-columns:1fr;gap:25px}.download-band{padding:32px}}
+@media(max-width:680px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:15px}.brand{font-size:15px;gap:5px}.brand-mark{font-size:24px}.brand small{display:none}.links{gap:13px}.links a{font-size:12px;padding:20px 0}.nav-cta{display:none}.hero{padding:45px 0 43px}.hero h1{font-size:clamp(39px,12vw,57px);letter-spacing:-2.5px}.lead{font-size:14px}.preview-body{grid-template-columns:98px 1fr;min-height:288px}.preview-side{padding:12px 5px}.side-item{font-size:9px;padding:8px 5px;gap:5px}.canvas{padding:15px 10px}.node-row{gap:5px}.node{padding:9px}.node strong{font-size:10px}.node small{font-size:9px}.module-strip{grid-template-columns:repeat(2,1fr)}.module{border-bottom:1px solid var(--line);padding:14px 12px}.module:nth-child(odd){border-left:1px solid var(--line)}.module:last-child{grid-column:1/-1}.capabilities,.use-grid{grid-template-columns:1fr}.cap,.use-card{min-height:0;padding:20px}.capabilities,.use-grid,.workflow{border-top:0}.workflow{grid-template-columns:1fr}.step{padding:20px}.step h3{margin-top:12px}.section{padding:48px 0}.section-head h2{font-size:32px}.benefits{padding:48px 0}.download-band{margin-bottom:48px;padding:25px 20px;align-items:flex-start;flex-direction:column}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap nav">
+<a class="brand" href="/" aria-label="RAGTerminal Discover"><span class="brand-mark">⬡</span><span>RAGTerminal<small> workbench</small></span></a>
+<nav class="links" aria-label="Primary"><a href="/" aria-current="page">Discover</a><a href="/community.html">Community</a><a href="/download.html">Download</a></nav>
+<a class="nav-cta" href="/download.html">Get RAGTerminal <span aria-hidden="true">↗</span></a>
+</div></header>
+<main>
+<section class="wrap hero" id="discover">
+<div>
+<div class="eyebrow">A macOS workbench for RAG systems</div>
+<h1>Turn knowledge into <span>workflows you can reuse.</span></h1>
+<p class="lead">RAGTerminal brings your knowledge, flows, blocks, scripts and plays into one workspace—so AI and data teams can organize the pieces, connect the steps, and make repeatable work easier to understand and maintain.</p>
+<div class="actions"><a class="button" href="#capabilities">Explore the workspace <span aria-hidden="true">↓</span></a><a class="button secondary" href="/community.html">Browse Community <span aria-hidden="true">↗</span></a></div>
+<div class="trustline"><span><i class="tick">✓</i> Five connected work areas</span><span><i class="tick">✓</i> Built for repeatable RAG work</span></div>
 </div>
-
-<div id="upload-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:#10182888;backdrop-filter:blur(4px);z-index:31">
-  <section role="dialog" aria-modal="true" aria-labelledby="upload-title" style="width:min(100%,680px);max-height:92vh;overflow:auto;background:#fff;border:1px solid #e4e8ef;border-radius:18px;padding:24px;box-shadow:0 25px 80px #11182733">
-    <div style="display:flex;align-items:flex-start;gap:12px">
-      <div style="flex:1"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#375df5;font-weight:850">Private staging</div><h2 id="upload-title" style="font-size:23px;letter-spacing:-.6px;margin:7px 0 5px">Upload a RAGTerminal package</h2><p id="upload-subtitle" style="font-size:12px;color:#738096;margin:0 0 18px">Your package stays private through validation and moderator review. It becomes public only after approval.</p></div>
-      <button id="upload-modal-close" type="button" aria-label="Close dialog" style="border:1px solid #e4e8ef;background:white;border-radius:9px;width:36px;height:36px;font-size:19px">×</button>
-    </div>
-    <div id="upload-alert" role="status" aria-live="polite" style="display:none;padding:10px 12px;background:#f3f6ff;color:#3154e9;border-radius:9px;font-size:12px;margin-bottom:14px;white-space:pre-wrap"></div>
-    <form id="pack-upload-form" style="display:grid;gap:12px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <label style="display:grid;gap:5px;font-size:11px;font-weight:750;color:#465269">Package title<input id="pack-title" required maxlength="120" minlength="2" placeholder="Customer support RAG pack" style="border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"></label>
-        <label style="display:grid;gap:5px;font-size:11px;font-weight:750;color:#465269">Package slug<input id="pack-slug" required maxlength="81" pattern="[a-z0-9][a-z0-9._-]{1,80}" placeholder="customer-support-rag" style="border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"><span style="font-size:10px;font-weight:400;color:#8b95a5">Lowercase letters, numbers, dots, underscores or hyphens.</span></label>
-      </div>
-      <label style="display:grid;gap:5px;font-size:11px;font-weight:750;color:#465269">Description<textarea id="pack-description" rows="3" maxlength="2000" placeholder="What does this package contain and how should it be used?" style="border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%;resize:vertical"></textarea></label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <label style="display:grid;gap:5px;font-size:11px;font-weight:750;color:#465269">License<select id="pack-license" required style="border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%;background:white"><option value="">Choose a license…</option><option>MIT</option><option>Apache-2.0</option><option>CC0-1.0</option><option>CC-BY-4.0</option><option>CC-BY-SA-4.0</option><option>CC-BY-NC-4.0</option><option>Proprietary - all rights reserved</option></select><span style="font-size:10px;font-weight:400;color:#8b95a5">Choose a license you are authorized to grant.</span></label>
-        <label style="display:grid;gap:5px;font-size:11px;font-weight:750;color:#465269">Tags (comma-separated)<input id="pack-tags" maxlength="400" placeholder="RAG, retrieval, support" style="border:1px solid #dfe5ee;border-radius:9px;padding:11px;font-size:13px;width:100%"><span style="font-size:10px;font-weight:400;color:#8b95a5">Up to 10 tags.</span></label>
-      </div>
-      <label style="display:grid;gap:7px;font-size:11px;font-weight:750;color:#465269">RAGTerminal .pack file<input id="pack-file" type="file" accept=".pack" required style="border:1px dashed #cbd4e2;border-radius:10px;padding:14px;font-size:12px;width:100%;background:#fafbfd"><span style="font-size:10px;font-weight:400;color:#8b95a5">Max 50 MiB. Must be a ZIP-formatted .pack containing manifest.json and supported JSONL files. Only allow-listed text files are accepted. Scripts and flows are never executed.</span></label>
-      <button id="pack-upload-submit" class="btn main" type="submit">Upload to private staging &amp; validate</button>
-    </form>
-    <section id="pack-preview" style="display:none;margin-top:18px;border-top:1px solid #e4e8ef;padding-top:18px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span id="pack-validation-badge" style="background:#e5f8ef;color:#167653;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:850">VALIDATED</span><strong id="pack-preview-title" style="font-size:14px">Validation preview</strong></div>
-      <div id="pack-validation-summary" style="font-size:12px;line-height:1.7;color:#536176;background:#f8f9fc;border:1px solid #e4e8ef;border-radius:10px;padding:12px"></div>
-      <div style="font-size:11px;font-weight:800;margin:14px 0 7px">Files and records</div>
-      <div id="pack-file-list" style="display:grid;gap:6px;font-size:11px"></div>
-      <label id="pack-attestation-row" style="display:flex;align-items:flex-start;gap:9px;margin-top:15px;font-size:11px;line-height:1.6;color:#536176"><input id="pack-attestation" type="checkbox" style="margin-top:3px"><span>I have the right to share this content under the selected license. I understand that, if approved, the package and its contents become publicly downloadable. Uploaded scripts/flows are not executed by the Hub.</span></label>
-      <button id="pack-publish-submit" class="btn main" type="button" disabled style="width:100%;margin-top:13px;opacity:.55">Submit for moderator review</button>
-      <a id="pack-public-link" href="#" target="_blank" rel="noopener noreferrer" style="display:none;margin-top:12px;color:#3154e9;font-size:12px;word-break:break-all">Open published package</a>
-    </section>
-  </section>
+<div class="preview" aria-label="Illustration of a RAG workflow workspace">
+<div class="preview-top"><i class="win-dot"></i><i class="win-dot"></i><i class="win-dot"></i><span class="preview-title">RAGTerminal / Flow workspace</span></div>
+<div class="preview-body">
+<aside class="preview-side"><div class="side-label">Workspace</div><div class="side-item"><i class="side-square"></i> Knowledge</div><div class="side-item active"><i class="side-square"></i> Flows</div><div class="side-item"><i class="side-square"></i> Blocks</div><div class="side-item"><i class="side-square"></i> Scripts</div><div class="side-item"><i class="side-square"></i> Plays</div></aside>
+<div class="canvas">
+<div class="node"><span class="node-label">01 · Source</span><strong>Product knowledge</strong><small>Documents + metadata</small></div>
+<div class="node-arrow" aria-hidden="true">↓</div>
+<div class="node-row"><div class="node"><span class="node-label">02 · Retrieve</span><strong>Context selection</strong></div><div class="node"><span class="node-label">03 · Compose</span><strong>Answer flow</strong></div></div>
+<div class="node-arrow" aria-hidden="true">↓</div>
+<div class="node"><span class="node-label">04 · Review</span><strong>Source-aware result</strong><small>Ready for the next step</small></div>
+</div></div>
+<div class="preview-foot"><span><strong>Flow canvas</strong> · schematic preview</span><span>Workspace concept</span></div>
 </div>
-<script type="module" src="/auth-ui.js"></script>
-<script type="module" src="/moderation-ui.js"></script>
+</section>
+<div class="wrap module-strip" aria-label="Five RAGTerminal work areas">
+<div class="module"><div class="module-label">Knowledge</div><div class="module-note">Organize source material</div></div>
+<div class="module"><div class="module-label">Flows</div><div class="module-note">Connect process steps</div></div>
+<div class="module"><div class="module-label">Blocks</div><div class="module-note">Reuse building blocks</div></div>
+<div class="module"><div class="module-label">Scripts</div><div class="module-note">Automate supporting work</div></div>
+<div class="module"><div class="module-label">Plays</div><div class="module-note">Capture repeatable routines</div></div>
+</div>
+<section class="section" id="capabilities"><div class="wrap">
+<div class="section-head"><div><div class="eyebrow">The workspace</div><h2>Five parts. One place to keep the whole system in view.</h2></div><p>Move from individual knowledge assets and reusable components to connected workflows. Keep the parts organized so work can be revisited, improved and shared.</p></div>
+<div class="capabilities">
+<article class="cap"><div class="cap-num">01 / KNOWLEDGE</div><div class="cap-mark" aria-hidden="true">▤</div><h3>Keep knowledge organized</h3><p>Bring source material and supporting information into a structured place for retrieval-focused work.</p><a class="cap-link" href="/community.html?category=knowledge">Explore Knowledge in Community ↗</a></article>
+<article class="cap"><div class="cap-num">02 / FLOWS</div><div class="cap-mark" aria-hidden="true">⌘</div><h3>Make the process visible</h3><p>Shape multi-step work as flows, making the handoffs between stages easier to inspect and refine.</p><a class="cap-link" href="/community.html?category=flow">Explore Flows in Community ↗</a></article>
+<article class="cap"><div class="cap-num">03 / BLOCKS</div><div class="cap-mark" aria-hidden="true">▦</div><h3>Reuse proven components</h3><p>Keep useful pieces available to bring into future tasks instead of starting from a blank canvas each time.</p><a class="cap-link" href="/community.html?category=block">Explore Blocks in Community ↗</a></article>
+<article class="cap"><div class="cap-num">04 / SCRIPTS</div><div class="cap-mark" aria-hidden="true">$_</div><h3>Automate supporting tasks</h3><p>Collect scripts used around your RAG workflows—from preparation and checks to developer utilities.</p><a class="cap-link" href="/community.html?category=script">Explore Scripts in Community ↗</a></article>
+<article class="cap"><div class="cap-num">05 / PLAYS</div><div class="cap-mark" aria-hidden="true">▶</div><h3>Repeat what works</h3><p>Turn a useful sequence into a play that gives recurring work a clearer, reusable starting point.</p><a class="cap-link" href="/community.html?category=play">Explore Plays in Community ↗</a></article>
+<article class="cap"><div class="cap-num">WORK AS A SYSTEM</div><div class="cap-mark" aria-hidden="true">↗</div><h3>Connect the pieces</h3><p>Build around the way your team actually works, with knowledge and process assets kept close together.</p><a class="cap-link" href="/community.html">See shared assets ↗</a></article>
+</div></div></section>
+<section class="section" id="use-cases"><div class="wrap">
+<div class="section-head"><div><div class="eyebrow">Industrial use cases</div><h2>Designed for work where answers need context—and processes need structure.</h2></div><p>Use RAGTerminal as a working surface for teams building retrieval-assisted knowledge workflows, internal tools and repeatable AI operations.</p></div>
+<div class="use-grid">
+<article class="use-card"><div class="use-index">01 / KNOWLEDGE OPERATIONS</div><h3>Enterprise and technical knowledge</h3><p>Organize policies, product documentation, procedures and technical references into a clearer foundation for retrieval-based experiences.</p></article>
+<article class="use-card"><div class="use-index">02 / CUSTOMER OPERATIONS</div><h3>Support and service teams</h3><p>Structure FAQs, escalation guidance and product context so support-oriented assistants can be built from more maintainable source material.</p></article>
+<article class="use-card"><div class="use-index">03 / AI & DATA ENGINEERING</div><h3>RAG pipeline development</h3><p>Work through ingestion, retrieval, reranking and response stages as a connected workflow rather than disconnected experiments.</p></article>
+<article class="use-card"><div class="use-index">04 / RESEARCH</div><h3>Research and analysis</h3><p>Keep source collections, processing steps and repeatable research routines organized as the work evolves.</p></article>
+<article class="use-card"><div class="use-index">05 / PLATFORM TEAMS</div><h3>Reusable internal tooling</h3><p>Package recurring logic and scripts into building blocks that other workflows can draw on and improve.</p></article>
+<article class="use-card"><div class="use-index">06 / DELIVERY & OPERATIONS</div><h3>Repeatable team procedures</h3><p>Represent common sequences as plays, giving recurring tasks a shared starting point and a structure worth refining.</p></article>
+</div></div></section>
+<section class="section" id="workflow"><div class="wrap">
+<div class="section-head"><div><div class="eyebrow">A practical working loop</div><h2>From raw material to reusable work.</h2></div><p>Start small, connect the steps you need, and keep the pieces that are useful for the next project.</p></div>
+<div class="workflow">
+<article class="step"><div class="step-num">STEP 01</div><h3>Organize the knowledge</h3><p>Gather the reference material, datasets and context your retrieval workflows depend on.</p></article>
+<article class="step"><div class="step-num">STEP 02</div><h3>Compose the workflow</h3><p>Use flows, blocks and scripts to express how information is prepared and used.</p></article>
+<article class="step"><div class="step-num">STEP 03</div><h3>Reuse and improve</h3><p>Keep effective components and plays available so the next iteration starts with more than a blank page.</p></article>
+</div></div></section>
+<section class="wrap benefits" id="benefits">
+<div><div class="eyebrow">Why RAGTerminal</div><h2>Less scattered setup. More deliberate, repeatable work.</h2></div>
+<div class="benefit-list">
+<div class="benefit"><div class="benefit-index">01</div><div><strong>Keep the moving parts together</strong><p>Knowledge, process design, reusable components and supporting scripts are visible as parts of the same workspace.</p></div></div>
+<div class="benefit"><div class="benefit-index">02</div><div><strong>Make workflows easier to reason about</strong><p>Give each step and reusable asset a clearer role instead of relying on undocumented glue between tools.</p></div></div>
+<div class="benefit"><div class="benefit-index">03</div><div><strong>Reduce repeated setup</strong><p>Bring forward components and routines that already work, then adapt them to the next job.</p></div></div>
+<div class="benefit"><div class="benefit-index">04</div><div><strong>Share useful patterns</strong><p>Use the Community catalog to discover and exchange reusable Knowledge, Flows, Blocks, Scripts and Plays.</p></div></div>
+</div>
+</section>
+<section class="wrap" id="download"><div class="download-band"><div><div class="eyebrow" style="color:#c6c6c6">Start with the workbench</div><h2>Make your next RAG workflow easier to build on.</h2><p>Explore the app's work areas, discover shared assets, and check the current macOS download options.</p></div><a class="button" href="/download.html">Download RAGTerminal ↗</a></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© 2026 RAGTerminal · A workbench for reusable RAG workflows</span><nav class="footer-links" aria-label="Footer"><a href="/">Discover</a><a href="/community.html">Community</a><a href="/download.html">Download</a><a href="https://github.com/Grewpot/ragterminal-hub" rel="noopener">Hub source</a></nav></div></footer>
 </body></html>
