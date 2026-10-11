@@ -53,6 +53,22 @@ body{background:#fff;color:#111;font-family:Inter,system-ui,-apple-system,"Segoe
 .staticon{border-radius:0;background:#f1f1f1!important;color:#111!important}
 @media(max-width:620px){.links{display:flex;gap:12px;font-size:12px}.links a{padding:18px 0}.right{gap:4px}.right .btn{padding:7px 8px;font-size:10px}}@media(max-width:480px){.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:9px}.links a{font-size:11px}.right .btn{padding:7px 6px;font-size:9px}}
 
+
+/* Keep the moderator action beside Upload Asset without changing the upload button's grid sizing. */
+.searchrow .search-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;flex-wrap:nowrap}
+.searchrow .search-actions>.btn{flex:0 0 auto;width:auto;min-width:0;white-space:nowrap}
+.searchrow #review-queue-launch{min-height:44px;padding:0 12px;font-size:12px;line-height:1.2}
+@media(max-width:620px){
+ .searchrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .searchrow .search-actions{grid-column:2;max-width:100%;gap:5px;flex-wrap:wrap}
+ .searchrow .search-actions>.btn{min-height:36px;padding:8px 7px;font-size:10px;line-height:1.2}
+ .searchrow #upload{grid-column:auto}
+}
+@media(max-width:400px){
+ .searchrow .search-actions{gap:4px}
+ .searchrow .search-actions>.btn{padding:7px 5px;font-size:9px}
+}
+
 /* Shared page frame: consistent gutters and navigation across Discover, Community, and Download */
 :root{--hub-page-max:1280px;--hub-page-gutter:24px}
 .wrap{width:min(var(--hub-page-max),100%);max-width:var(--hub-page-max);margin-left:auto;margin-right:auto;padding-left:var(--hub-page-gutter);padding-right:var(--hub-page-gutter);box-sizing:border-box}
