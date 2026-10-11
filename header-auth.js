@@ -47,11 +47,28 @@ if (profileButton) {
     }
   }
 
+  let observedAuthEvent = false;
+  // Subscribe before reading storage so a fast INITIAL_SESSION event cannot be missed.
+  supabase.auth.onAuthStateChange((_event, session) => {
+    observedAuthEvent = true;
+    window.setTimeout(() => { void syncAccountButton(session); }, 0);
+  });
+
   const { data, error } = await supabase.auth.getSession();
   if (error) console.warn("Could not restore the header auth session", error);
-  await syncAccountButton(data?.session || null);
+  if (!observedAuthEvent) await syncAccountButton(data?.session || null);
 
-  supabase.auth.onAuthStateChange((_event, session) => {
-    window.setTimeout(() => { void syncAccountButton(session); }, 0);
+  // Re-check on a restored page and when another tab changes the persisted session.
+  async function refreshFromStorage() {
+    const { data: latest, error: refreshError } = await supabase.auth.getSession();
+    if (refreshError) {
+      console.warn("Could not refresh the header auth session", refreshError);
+      return;
+    }
+    await syncAccountButton(latest?.session || null);
+  }
+  window.addEventListener("pageshow", () => { void refreshFromStorage(); });
+  window.addEventListener("storage", (event) => {
+    if (!event.key || event.key.includes("auth-token")) void refreshFromStorage();
   });
 }
