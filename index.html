@@ -22,8 +22,11 @@ a{color:inherit}button,input{font:inherit}
 .links{display:flex;align-items:center;gap:30px;margin-left:auto;height:100%}
 .links a{text-decoration:none;color:#414141;font-size:14px;padding:23px 0 21px;border-bottom:2px solid transparent}
 .links a:hover,.links a[aria-current=page]{color:#111;border-bottom-color:#111}
-.nav-cta,.button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 17px;border:1px solid #111;background:#111;color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.2px;transition:background .15s,color .15s}
-.nav-cta:hover,.button:hover{background:#333}
+.nav-cta,.button,.auth-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 17px;border:1px solid #111;background:#111;color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.2px;transition:background .15s,color .15s}
+.nav-cta:hover,.button:hover,.auth-btn:hover{background:#333;color:#fff}
+.nav-actions{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.auth-btn.secondary{background:#fff;color:#111;border-color:#d5d5d5}
+.auth-btn.secondary:hover{background:#f5f5f5;color:#111}
 .button.secondary{background:#fff;color:#111;border-color:#d5d5d5}
 .button.secondary:hover{background:#f5f5f5}
 .eyebrow{text-transform:uppercase;font-size:10px;letter-spacing:1.7px;font-weight:800;color:#555}
@@ -97,14 +100,15 @@ a{color:inherit}button,input{font:inherit}
 .footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px}
 .footer-links{display:flex;gap:22px}.footer a{text-decoration:none}.footer a:hover{color:#111}
 @media(max-width:900px){.hero{grid-template-columns:1fr;gap:36px;padding:58px 0}.preview{max-width:650px}.section{padding:60px 0}.section-head{align-items:start;flex-direction:column;gap:12px}.benefits{grid-template-columns:1fr;gap:25px}.download-band{padding:32px}}
-@media(max-width:680px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:15px}.brand{font-size:15px;gap:5px}.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:13px}.links a{font-size:12px;padding:20px 0}.nav-cta{display:none}.hero{padding:45px 0 43px}.hero h1{font-size:clamp(39px,12vw,57px);letter-spacing:-2.5px}.lead{font-size:14px}.preview-body{grid-template-columns:98px 1fr;min-height:288px}.preview-side{padding:12px 5px}.side-item{font-size:9px;padding:8px 5px;gap:5px}.canvas{padding:15px 10px}.node-row{gap:5px}.node{padding:9px}.node strong{font-size:10px}.node small{font-size:9px}.module-strip{grid-template-columns:repeat(2,1fr)}.module{border-bottom:1px solid var(--line);padding:14px 12px}.module:nth-child(odd){border-left:1px solid var(--line)}.module:last-child{grid-column:1/-1}.capabilities,.use-grid{grid-template-columns:1fr}.cap,.use-card{min-height:0;padding:20px}.capabilities,.use-grid,.workflow{border-top:0}.workflow{grid-template-columns:1fr}.step{padding:20px}.step h3{margin-top:12px}.section{padding:48px 0}.section-head h2{font-size:32px}.benefits{padding:48px 0}.download-band{margin-bottom:48px;padding:25px 20px;align-items:flex-start;flex-direction:column}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
+@media(max-width:680px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:15px}.brand{font-size:15px;gap:5px}.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:13px}.links a{font-size:12px;padding:20px 0}.nav-cta{display:none}.nav-actions{gap:5px}.auth-btn{min-height:34px;padding:0 8px;font-size:10px;letter-spacing:0}.nav{gap:8px}.brand{font-size:13px}.hero{padding:45px 0 43px}.hero h1{font-size:clamp(39px,12vw,57px);letter-spacing:-2.5px}.lead{font-size:14px}.preview-body{grid-template-columns:98px 1fr;min-height:288px}.preview-side{padding:12px 5px}.side-item{font-size:9px;padding:8px 5px;gap:5px}.canvas{padding:15px 10px}.node-row{gap:5px}.node{padding:9px}.node strong{font-size:10px}.node small{font-size:9px}.module-strip{grid-template-columns:repeat(2,1fr)}.module{border-bottom:1px solid var(--line);padding:14px 12px}.module:nth-child(odd){border-left:1px solid var(--line)}.module:last-child{grid-column:1/-1}.capabilities,.use-grid{grid-template-columns:1fr}.cap,.use-card{min-height:0;padding:20px}.capabilities,.use-grid,.workflow{border-top:0}.workflow{grid-template-columns:1fr}.step{padding:20px}.step h3{margin-top:12px}.section{padding:48px 0}.section-head h2{font-size:32px}.benefits{padding:48px 0}.download-band{margin-bottom:48px;padding:25px 20px;align-items:flex-start;flex-direction:column}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
+@media(max-width:480px){.links{gap:6px}.links a{font-size:10px}.brand{font-size:12px;gap:3px}.auth-btn{min-height:32px;padding:0 6px;font-size:9px}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap nav">
 <a class="brand" href="/" aria-label="RAGTerminal Discover"><img class="brand-icon" src="/assets/brain.head.profile.svg" alt=""><span>RAGTerminal<small> workbench</small></span></a>
 <nav class="links" aria-label="Primary"><a href="/" aria-current="page">Discover</a><a href="/community.html">Community</a><a href="/download.html">Download</a></nav>
-<a class="nav-cta" href="/download.html">Get RAGTerminal <span aria-hidden="true">↗</span></a>
+<div class="nav-actions" aria-label="Account actions"><a class="auth-btn" href="/community.html?auth=signup">Sign Up</a><a class="auth-btn secondary" href="/community.html?auth=signin">Sign In</a></div>
 </div></header>
 <main>
 <section class="wrap hero" id="discover">

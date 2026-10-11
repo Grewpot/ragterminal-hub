@@ -487,3 +487,14 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 const sessionResult = await supabase.auth.getSession();
 await refreshProfile(sessionResult.data.session?.user || null);
+
+// The Discover page links here to reuse the existing Community auth modal.
+const requestedAuthMode = new URLSearchParams(window.location.search).get("auth");
+if (requestedAuthMode === "signup" || requestedAuthMode === "signin") {
+  authMode = requestedAuthMode;
+  openModal();
+  showAuthForm();
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete("auth");
+  window.history.replaceState({}, "", cleanUrl.toString());
+}
