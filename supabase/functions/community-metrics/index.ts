@@ -1,7 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-const PUBLISHABLE_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const MAX_IDS = 100;
 const MAX_BODY_BYTES = 16 * 1024;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
