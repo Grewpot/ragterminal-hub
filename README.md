@@ -2,56 +2,92 @@
 
 A Hugging Face–inspired community catalog for RAGTerminal assets: Knowledge, Flows, Blocks, Scripts, and Plays.
 
-## Current deployed implementation
+## Live services
 
-- Static, responsive community catalog served by Vercel from index.html.
-- Search, five category tabs, tag filters, sorting, sample cards, and local-only stars.
-- Public catalog reads from Supabase's REST Data API using the project URL and publishable key.
-- auth-ui.js implements Supabase email/password sign-up, sign-in, sign-out, and profile create/edit in a modal.
-- Public pages use demo assets when no published records are present.
-- Upload and package download remain intentionally disabled until private staging storage, validation, and publishing controls are implemented.
-
-## Deployment
-
-- GitHub repository: https://github.com/Grewpot/ragterminal-hub
+- Community site: https://ragterminal-hub.vercel.app
+- GitHub: https://github.com/Grewpot/ragterminal-hub
 - Vercel project: https://vercel.com/grewpots-projects/ragterminal-hub
-- Production URL: https://ragterminal-hub.vercel.app
-- Supabase project: https://supabase.com/dashboard/project/zjifbqdvbmvuiwgwdkey
-- Supabase region: ap-south-1 (Mumbai)
+- Supabase project: https://supabase.com/dashboard/project/zjifbqdvbmvuiwgwdkey (region: ap-south-1 / Mumbai)
 
-Push changes to the main branch to trigger a Vercel deployment.
+Push to the main branch to trigger a Vercel deployment. The current frontend is a static HTML/CSS/JavaScript site; Supabase client code is loaded as a browser ES module.
 
-## Supabase Auth setup
+## Community catalog
+
+- Five category tabs: Knowledge, Flows, Blocks, Scripts, and Plays.
+- Search, tag filtering and sort controls.
+- Public catalog reads from Supabase's REST Data API using the publishable key.
+- When there are no published records, clearly labeled demo assets are shown.
+- Published package cards include a direct download link for the public release object.
+- Stars are currently local to the browser; durable stars, download analytics and comments are not yet wired to the UI.
+
+## Authentication and profiles
+
+The auth-ui.js module implements Supabase email/password sign-up, sign-in, sign-out, session restoration, and create/edit profile fields (username, display name, bio and optional HTTPS avatar URL).
 
 In Supabase Dashboard, open **Authentication → URL Configuration** and set:
 
 - **Site URL:** https://ragterminal-hub.vercel.app
 - **Redirect URLs:** https://ragterminal-hub.vercel.app/**
-- Add preview/local URLs only as needed, such as https://*-grewpots-projects.vercel.app/** and http://localhost:3000/**.
+- Add preview/local redirect URLs only when needed.
 
-Email confirmation uses the current site's origin as its redirect target. That URL must be on Supabase Auth's allowlist. Email/password sign-up uses the provider and email-delivery settings configured in Supabase Auth. The UI currently does not implement a custom server-side OAuth callback.
+Email confirmation uses the current site's origin as the redirect target, so it must be on the allowlist. Email/password sign-up also depends on the provider and email-delivery settings configured in Supabase Auth.
 
-The browser code uses only the Supabase **publishable** key. Never place a service-role or secret key in index.html, auth-ui.js, or any browser-delivered file.
+The browser code uses the Supabase **publishable** key only. Never place a service-role or secret key in index.html, auth-ui.js, or any browser-delivered file.
 
-## Database
+## Secure .pack upload and publication
 
-The community schema defines:
+The upload flow is deployed and uses Supabase Storage plus the pack-lifecycle Edge Function.
 
-- community_profiles: public profile fields, editable only by the profile owner.
-- community_repositories: repository/package metadata, visibility and publication status.
-- community_artifacts: Knowledge, Flow, Block, Script and Play entries.
-- community_artifact_versions: release metadata, checksum and storage path.
-- community_stars: per-user stars with star identities private to the user.
-- community_download_events: download telemetry scoped to the signed-in user.
+1. Signed-in user enters package title, slug, description, tags and license.
+2. The .pack is uploaded to the private community-staging bucket using an owner-scoped path.
+3. The authenticated Edge Function checks ownership, archive structure, size limits, file allowlist, manifest.json, JSONL records, declared checksums where supplied and common hard-coded secret patterns.
+4. A validation preview shows the manifest metadata, file list, record counts, size and package SHA-256.
+5. User must explicitly attest that they have rights to share the content under the selected license, then click **Publish package publicly**.
+6. The function rechecks the package checksum, copies the archive to community-releases, creates the repository and per-category catalog records/version metadata, updates the upload record, and removes the staging copy where possible.
+7. Published catalog cards expose the public .pack download URL. No uploaded script or flow is executed during validation or publication.
 
-Row Level Security is enabled on all six tables. Security Advisor returned no security lints during the initial setup review. The schema snapshot is stored at supabase/migrations/202610110001_community_catalog.sql; it corresponds to the schema applied to the connected Supabase project. Reconcile the migration history before using CLI migration push on an existing database.
+### Current archive limits
 
-## Next implementation steps
+- ZIP-formatted .pack archives only.
+- Maximum compressed upload: 50 MiB.
+- Maximum expanded contents: 50 MiB total; maximum 10 MiB per file.
+- Maximum 32 ZIP entries and maximum compression ratio of 100:1.
+- Up to 10,000 JSONL records per file; 1 MiB per non-empty JSONL line.
+- Only manifest.json, optional README/license text, and defined JSONL paths under knowledge/, flows/, blocks/, scripts/, and plays/ are accepted.
+- JSONL lines must decode to JSON objects. Unsafe paths, duplicate paths, unexpected files, invalid JSON and checksum mismatches are rejected.
 
-1. Configure Supabase Auth Site URL and allowed redirect URLs, then test sign-up confirmation and profile editing with a real test account.
-2. Move public counts and persistent stars to database-backed queries.
-3. Add a private Storage bucket and authenticated upload policies.
-4. Add RAGTerminal pack archive limits, safe extraction, manifest/JSONL validation, checksum verification, malware/secrets scanning, and a moderation/publish step.
-5. Implement signed downloads and persistent download counts.
-6. Add the Knowledge import pipeline: validate, chunk, embed, index, and track the embedding profile per workspace.
-7. Only execute Scripts/Flows/Plays through a separately secured sandbox; never execute them during upload or preview.
+Secret-pattern checks are heuristic guardrails, not a full malware scanner or a guarantee that content is harmless. The Hub does not execute user-provided code. Published packages become public and downloadable; private source material must not be uploaded.
+
+## Database and storage
+
+Tables include:
+
+- community_profiles
+- community_repositories
+- community_artifacts
+- community_artifact_versions
+- community_stars
+- community_download_events
+- community_uploads
+
+Row Level Security is enabled. community-staging is private and scoped to the uploader's user ID. community-releases is public-read only; client policies do not permit public uploads. pack-lifecycle requires a valid user JWT and performs server-side validation/publication using server credentials.
+
+The Security Advisor returned no security lints after the upload pipeline changes. Re-check security advisors after future schema/policy changes.
+
+## Schema migration files
+
+- supabase/migrations/202610110001_community_catalog.sql
+- supabase/migrations/202610110002_secure_upload_pipeline.sql
+- supabase/functions/pack-lifecycle/index.ts
+- supabase/functions/pack-lifecycle/deno.json
+
+These migrations have already been applied to the connected Supabase project. Reconcile remote migration history before running supabase db push against an existing database.
+
+## Not yet implemented
+
+- Admin/moderator review queue and takedown workflow.
+- Content/license review beyond uploader attestation and automated checks.
+- Persistent user stars, comments and download analytics in the UI.
+- Per-asset signed downloads (current download is the complete published .pack).
+- Full malware analysis, semantic validation of every domain schema, and safe execution sandboxing.
+- Knowledge import for the consumer workspace: chunking, embeddings, vector indexing and reindex controls.
