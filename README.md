@@ -30,7 +30,7 @@ In Supabase Dashboard, open **Authentication → URL Configuration** and set:
 - **Redirect URLs:** https://ragterminal-hub.vercel.app/**
 - Add preview/local redirect URLs only when needed.
 
-Email confirmation uses the current site's origin as the redirect target, so it must be on the allowlist. Email/password sign-up also depends on the provider and email-delivery settings configured in Supabase Auth.
+Email confirmation uses the current site's origin as the redirect target; signup started from localhost is deliberately redirected to the hosted production Hub to avoid sending confirmation links to an offline dev server. Keep the Site URL set to `https://ragterminal-hub.vercel.app` and add `https://ragterminal-hub.vercel.app/**` to Redirect URLs. Add `http://localhost:3000/**` only when local testing is needed and the local server will be running. Supabase requires redirect targets to match the Auth URL allowlist; a confirmation can succeed even if the destination page is offline. Email/password sign-up also depends on the provider and email-delivery settings configured in Supabase Auth.
 
 The browser code uses the Supabase **publishable** key only. Never place a service-role or secret key in index.html, auth-ui.js, or any browser-delivered file.
 
