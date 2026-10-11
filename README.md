@@ -93,6 +93,7 @@ The Security Advisor returned no security lints after the upload pipeline change
 
 - supabase/migrations/202610110001_community_catalog.sql
 - supabase/migrations/202610110002_secure_upload_pipeline.sql
+- supabase/migrations/202610110003_community_moderation_review.sql
 - supabase/functions/pack-lifecycle/index.ts
 - supabase/functions/pack-lifecycle/deno.json
 
