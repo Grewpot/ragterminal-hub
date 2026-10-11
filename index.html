@@ -25,14 +25,149 @@ const demos=[
 {name:"Tool-Aware Agent Router",type:"flow",owner:"mira-labs",description:"Routes tasks to approved tools using explicit capability declarations and fallback paths.",tags:["agents","routing","safety"],stars:68,downloads:870,updated_at:"2026-09-20",license:"Apache-2.0",slug:"tool-aware-router",version:"1.0.0"},
 {name:"Entity & Relationship Demo Graph",type:"knowledge",owner:"graphworks",description:"A small knowledge graph sample with entities, typed relationships and source provenance.",tags:["knowledge-graph","entities","research"],stars:55,downloads:760,updated_at:"2026-09-29",license:"CC BY 4.0",slug:"entity-relationship-demo",version:"1.0.0"},
 {name:"Internal Helpdesk Play",type:"play",owner:"acme-ai",description:"A helpdesk setup tying together approved knowledge, retrieval flow, safety blocks and evaluation.",tags:["support","agents","evaluation"],stars:51,downloads:710,updated_at:"2026-09-11",license:"CC BY-NC 4.0",slug:"internal-helpdesk",version:"1.0.0"}];
-let assets=demos.map((a,i)=>({...a,id:"demo-"+i,updated_at:a.updated_at,source:"demo"})),cat="all",side="all",tag="",query="",sort="trending";const starred=new Set();const glyph={knowledge:"▤",flow:"⑂",block:"▦",script:"‹/›",play:"▷"};const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+let assets=[],cat="all",side="all",tag="",query="",sort="recent",catalogLoading=true,catalogLoadError=false,catalogErrorMessage="",previewDemos=false;const starred=new Set();const glyph={knowledge:"▤",flow:"⑂",block:"▦",script:"‹/›",play:"▷"};const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 function notify(t){$("#toast").textContent=t;$("#toast").classList.add("show");setTimeout(()=>$("#toast").classList.remove("show"),2600)}
 function text(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;e.textContent=value??"";return e}
 function fmt(n){return n>=1000?(n/1000).toFixed(1).replace(".0","")+"k":String(n||0)}
-function render(){let rows=assets.filter(a=>(cat==="all"||a.type===cat)&&(!query||[a.name,a.owner,a.description,a.type,...(a.tags||[])].join(" ").toLowerCase().includes(query.toLowerCase()))&&(!tag||(a.tags||[]).some(t=>t.toLowerCase()===tag.toLowerCase()))&&(side!=="starred"||starred.has(a.id)));if(side==="trending")rows.sort((a,b)=>(b.stars+b.downloads/25)-(a.stars+a.downloads/25));if(side==="recent")rows.sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));if(sort==="downloads")rows.sort((a,b)=>b.downloads-a.downloads);if(sort==="stars")rows.sort((a,b)=>b.stars-a.stars);if(sort==="az")rows.sort((a,b)=>a.name.localeCompare(b.name));if(sort==="recent")rows.sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));$("#count").textContent=rows.length+" asset"+(rows.length===1?"":"s");$("#label").textContent=query||tag?"matching your filters":"available to explore";$("#all-count").textContent=assets.length;$("#asset-stat").textContent=assets.length;$$("[data-cat]").forEach(b=>{b.classList.toggle("active",b.dataset.cat===cat);const n=b.querySelector("span");if(n)n.textContent=b.dataset.cat==="all"?assets.length:assets.filter(a=>a.type===b.dataset.cat).length});$$("[data-side]").forEach(b=>b.classList.toggle("active",b.dataset.side===side));$$("[data-tag]").forEach(b=>b.classList.toggle("active",b.dataset.tag===tag));const root=$("#cards");root.replaceChildren();if(!rows.length){root.append(text("div","empty","No matching assets. Try another search or reset filters."));return}rows.forEach(a=>{const card=text("article","card "+a.type);card.tabIndex=0;const head=text("div","c-head","");head.append(text("span","ico",glyph[a.type]||"▤"));const titleWrap=text("div","","");titleWrap.style.cssText="min-width:0;flex:1";titleWrap.append(text("div","ctitle",a.name),text("div","owner","◉ "+a.owner));head.append(titleWrap,text("span","kind",a.type.toUpperCase()));card.append(head,text("p","desc",a.description));const pills=text("div","pills","");(a.tags||[]).slice(0,3).forEach(t=>{const b=text("button","pill",t);b.onclick=e=>{e.stopPropagation();tag=t;side="all";render()};pills.append(b)});card.append(pills);const foot=text("div","foot","");foot.append(text("span","","☆ "+fmt(a.stars)),text("span","","⇩ "+fmt(a.downloads)),text("span","","◷ "+new Date(a.updated_at).toLocaleDateString()),text("span","license",a.license||"License unspecified"));const star=text("button","star "+(starred.has(a.id)?"sel":""),starred.has(a.id)?"★":"☆");star.setAttribute("aria-label","Toggle star");star.onclick=e=>{e.stopPropagation();starred.has(a.id)?starred.delete(a.id):starred.add(a.id);render()};foot.append(star);if(a.package_path){const dl=document.createElement("a");dl.className="pill";dl.textContent="⇩ Download";dl.style.cssText="text-decoration:none;color:#3154e9;font-weight:800;white-space:nowrap";const objectPath=a.package_path.split("/").map(encodeURIComponent).join("/");dl.href=SUPABASE_URL+"/storage/v1/object/public/community-releases/"+objectPath+"?download="+encodeURIComponent((a.slug||"RAGTerminal")+".pack");dl.setAttribute("aria-label","Download published RAGTerminal package");dl.onclick=e=>e.stopPropagation();foot.append(dl)}card.append(foot);card.onclick=()=>{if(a.source==="supabase"){window.location.href="/asset.html?id="+encodeURIComponent(a.id)}else notify("Sample asset only — upload and publish a package to enable real detail pages and downloads.")};card.onkeydown=e=>{if(e.key==="Enter")card.click()};root.append(card)})}
-async function loadCatalog(){try{const p=new URLSearchParams({select:"id,slug,title,description,artifact_type,tags,license,latest_version,updated_at,repository:community_repositories!inner(slug,title,visibility,status,package_storage_path,latest_version)",status:"eq.published","repository.status":"eq.published","repository.visibility":"eq.public",order:"updated_at.desc",limit:"100"});const r=await fetch(SUPABASE_URL+"/rest/v1/community_artifacts?"+p.toString(),{headers:{apikey:SUPABASE_KEY,Accept:"application/json"}});if(!r.ok)throw new Error("Catalog HTTP "+r.status);const data=await r.json();if(Array.isArray(data)&&data.length){assets=data.map(a=>({id:a.id,name:a.title,type:a.artifact_type,owner:a.repository?.slug||"community",description:a.description||"",tags:a.tags||[],stars:0,downloads:0,updated_at:a.updated_at,license:a.license||"License unspecified",slug:a.slug,version:a.latest_version||a.repository?.latest_version,package_path:a.repository?.package_storage_path||null,source:"supabase"}));$("#status").textContent="LIVE CATALOG";$("#status").style.background="#e5f8ef";$("#status").style.color="#167653";$("#catalog-mode").textContent="Supabase connected"}else{$("#status").textContent="CONNECTED · NO PUBLISHED ASSETS";$("#catalog-mode").textContent="Demo cards · database connected"} }catch(e){$("#status").textContent="DEMO MODE";$("#catalog-mode").textContent="Preview data · catalog unavailable";console.warn("Could not load public catalog",e)}render()}
+function loadDemoCatalog(){
+  previewDemos=true;catalogLoadError=false;catalogErrorMessage="";
+  assets=demos.map((a,i)=>({...a,id:"demo-"+i,updated_at:a.updated_at,source:"demo"}));
+  cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value=sort;
+  $("#status").textContent="PREVIEW DATA";$("#catalog-mode").textContent="Sample cards · not public listings";
+  $("#status").style.background="#fff2dc";$("#status").style.color="#9d6819";
+  render();
+}
+async function refreshStarredState(){
+  const api=window.ragHubCommunityAPI;
+  const ids=assets.filter(a=>a.source==="supabase").map(a=>a.id);
+  if(!api||!ids.length)return;
+  try{
+    const result=await api.loadStars(ids);
+    starred.clear();(result||[]).forEach(id=>starred.add(id));
+    render();
+  }catch(error){console.warn("Could not load saved community stars",error)}
+}
+function render(){
+  const live=assets.some(a=>a.source==="supabase");
+  const sortSelect=$("#sort");
+  [["trending","Trending"],["downloads","Most downloaded"],["stars","Most starred"]].forEach(([value,label])=>{
+    const option=sortSelect.querySelector('option[value="'+value+'"]');
+    if(option){option.disabled=live;option.textContent=live?label+" (activity data unavailable)":label}
+  });
+  const trendingButton=$('[data-side="trending"]');
+  if(trendingButton){trendingButton.disabled=live;trendingButton.title=live?"Trending requires aggregate engagement metrics.":"Sort sample cards by their sample engagement metrics."}
+  if(live&&["trending","downloads","stars"].includes(sort)){sort="recent";sortSelect.value="recent"}
+  if(live&&side==="trending")side="recent";
+  let rows=assets.filter(a=>(cat==="all"||a.type===cat)&&(!query||[a.name,a.owner,a.description,a.type,...(a.tags||[])].join(" ").toLowerCase().includes(query.toLowerCase()))&&(!tag||(a.tags||[]).some(t=>t.toLowerCase()===tag.toLowerCase()))&&(side!=="starred"||starred.has(a.id)));
+  if(side==="trending")rows.sort((a,b)=>(b.stars+b.downloads/25)-(a.stars+a.downloads/25));
+  if(side==="recent")rows.sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
+  if(sort==="downloads")rows.sort((a,b)=>b.downloads-a.downloads);
+  if(sort==="stars")rows.sort((a,b)=>b.stars-a.stars);
+  if(sort==="az")rows.sort((a,b)=>a.name.localeCompare(b.name));
+  if(sort==="recent")rows.sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
+  $("#count").textContent=rows.length+" asset"+(rows.length===1?"":"s");
+  $("#label").textContent=query||tag?"matching your filters":live?"published community assets":"available to explore";
+  $("#all-count").textContent=assets.length;$("#asset-stat").textContent=assets.length;
+  $$("[data-cat]").forEach(b=>{b.classList.toggle("active",b.dataset.cat===cat);const n=b.querySelector("span");if(n)n.textContent=b.dataset.cat==="all"?assets.length:assets.filter(a=>a.type===b.dataset.cat).length});
+  $$("[data-side]").forEach(b=>b.classList.toggle("active",b.dataset.side===side));
+  $$("[data-tag]").forEach(b=>b.classList.toggle("active",b.dataset.tag===tag));
+  const root=$("#cards");root.replaceChildren();
+  if(!rows.length){
+    const empty=text("div","empty",assets.length?"No matching assets. Try another search or reset filters.":catalogLoading?"Loading published community assets…":catalogLoadError?"The community catalog could not be reached.":"No community assets have been published yet.");
+    if(!assets.length&&!catalogLoading){
+      empty.append(text("p","",catalogLoadError?(catalogErrorMessage||"Check your connection and retry."):"Published assets will appear here after moderator approval."));
+      if(catalogLoadError){const retry=text("button","btn secondary","Retry catalog connection");retry.type="button";retry.onclick=()=>loadCatalog();empty.append(retry)}
+      const demo=text("button","btn main","Preview example cards");demo.type="button";demo.style.marginLeft="8px";demo.onclick=loadDemoCatalog;empty.append(demo);
+    }
+    root.append(empty);return;
+  }
+  rows.forEach(a=>{
+    const card=text("article","card "+a.type);card.tabIndex=0;
+    const head=text("div","c-head","");head.append(text("span","ico",glyph[a.type]||"▤"));
+    const titleWrap=text("div","","");titleWrap.style.cssText="min-width:0;flex:1";
+    titleWrap.append(text("div","ctitle",a.name),text("div","owner","◉ "+a.owner));
+    head.append(titleWrap,text("span","kind",a.type.toUpperCase()));card.append(head,text("p","desc",a.description));
+    const pills=text("div","pills","");(a.tags||[]).slice(0,3).forEach(t=>{const b=text("button","pill",t);b.onclick=e=>{e.stopPropagation();tag=t;side="all";render()};pills.append(b)});card.append(pills);
+    const foot=text("div","foot","");
+    if(a.source==="demo")foot.append(text("span","","☆ "+fmt(a.stars)),text("span","","⇩ "+fmt(a.downloads)));
+    foot.append(text("span","","◷ "+(a.updated_at?new Date(a.updated_at).toLocaleDateString():"—")),text("span","license",a.license||"License unspecified"));
+    const star=text("button","star "+(starred.has(a.id)?"sel":""),starred.has(a.id)?"★":"☆");
+    star.setAttribute("aria-label",starred.has(a.id)?"Remove from starred assets":"Save to starred assets");
+    star.title=starred.has(a.id)?"Remove star":"Save star";
+    star.onclick=async e=>{
+      e.stopPropagation();
+      if(a.source==="demo"){starred.has(a.id)?starred.delete(a.id):starred.add(a.id);render();return}
+      const api=window.ragHubCommunityAPI;
+      if(!api){notify("Community account service is still loading. Try again.");return}
+      star.disabled=true;
+      try{
+        const result=await api.toggleStar(a.id,starred.has(a.id));
+        if(result?.requiresSignIn){notify("Sign in to save community stars.");window.ragHubOpenAccount?.("signin");return}
+        if(result?.starred)starred.add(a.id);else starred.delete(a.id);
+        render();
+      }catch(error){notify(error.message||"Could not save this star. Please retry.")}
+      finally{star.disabled=false}
+    };
+    foot.append(star);
+    if(a.package_path){
+      const dl=document.createElement("a");dl.className="pill";dl.textContent="⇩ Get package";dl.style.cssText="text-decoration:none;color:#3154e9;font-weight:800;white-space:nowrap";
+      const objectPath=a.package_path.split("/").map(encodeURIComponent).join("/");
+      dl.href=SUPABASE_URL+"/storage/v1/object/public/community-releases/"+objectPath+"?download="+encodeURIComponent((a.slug||"RAGTerminal")+".pack");
+      dl.setAttribute("aria-label","Get published RAGTerminal package for in-app installation");
+      dl.onclick=e=>{
+        e.stopPropagation();e.preventDefault();const href=dl.href;
+        (async()=>{try{await window.ragHubCommunityAPI?.recordDownload(a.id)}catch(error){console.warn("Community download metric was not recorded",error)}finally{window.location.assign(href)}})();
+      };
+      foot.append(dl);
+    }
+    card.append(foot);
+    card.onclick=()=>{if(a.source==="supabase"){window.location.href="/asset.html?id="+encodeURIComponent(a.id)}else notify("Example asset only — sample cards are not published or installable.")};
+    card.onkeydown=e=>{if(e.key==="Enter")card.click()};
+    root.append(card);
+  });
+}
+async function loadCatalog(){
+  catalogLoading=true;catalogLoadError=false;catalogErrorMessage="";previewDemos=false;
+  try{
+    const pageSize=100,maximumAssets=10000;let offset=0;const data=[];
+    while(data.length<maximumAssets){
+      const p=new URLSearchParams({
+        select:"id,slug,title,description,artifact_type,tags,license,latest_version,updated_at,repository:community_repositories!inner(slug,title,visibility,status,package_storage_path,latest_version)",
+        status:"eq.published","repository.status":"eq.published","repository.visibility":"eq.public",
+        order:"updated_at.desc,id.asc",limit:String(pageSize),offset:String(offset)
+      });
+      const response=await fetch(SUPABASE_URL+"/rest/v1/community_artifacts?"+p.toString(),{headers:{apikey:SUPABASE_KEY,Accept:"application/json"}});
+      if(!response.ok)throw new Error("Catalog HTTP "+response.status);
+      const page=await response.json();
+      if(!Array.isArray(page))throw new Error("Catalog response was not a list.");
+      data.push(...page);
+      if(page.length<pageSize)break;
+      offset+=page.length;
+    }
+    const truncated=data.length>=maximumAssets;
+    assets=data.map(a=>({
+      id:a.id,name:a.title,type:a.artifact_type,owner:a.repository?.slug||"community",
+      description:a.description||"",tags:a.tags||[],stars:null,downloads:null,updated_at:a.updated_at,
+      license:a.license||"License unspecified",slug:a.slug,version:a.latest_version||a.repository?.latest_version,
+      package_path:a.repository?.package_storage_path||null,source:"supabase"
+    }));
+    $("#status").textContent="LIVE CATALOG";$("#status").style.background="#e5f8ef";$("#status").style.color="#167653";
+    $("#catalog-mode").textContent=truncated?"Supabase connected · first 10,000 assets":"Supabase connected";
+    if(truncated)console.warn("Catalog is capped at 10,000 assets in one browser session. Larger catalogs should add server filters.");
+    sort="recent";$("#sort").value="recent";side="all";
+  }catch(error){
+    assets=[];catalogLoadError=true;catalogErrorMessage=error.message||"Catalog request failed.";
+    $("#status").textContent="CATALOG UNAVAILABLE";$("#status").style.background="#fff1f0";$("#status").style.color="#b42318";
+    $("#catalog-mode").textContent="Supabase catalog unavailable";
+    console.warn("Could not load public catalog",error);
+  }finally{
+    catalogLoading=false;render();await refreshStarredState();
+  }
+}
 window.ragHubReloadCatalog = loadCatalog;
-$$("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;side="all";render()});$$("[data-side]").forEach(b=>b.onclick=()=>{side=b.dataset.side;cat="all";render()});$$("[data-tag]").forEach(b=>b.onclick=()=>{tag=tag===b.dataset.tag?"":b.dataset.tag;side="all";render()});$("#q").oninput=e=>{query=e.target.value.trim();side="all";render()};$("#sort").onchange=e=>{sort=e.target.value;render()};$("#reset").onclick=()=>{cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value="trending";render()};$("#signin").onclick=null;$("#upload").onclick=null;document.addEventListener("keydown",e=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}});render();loadCatalog();
+$$("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;side="all";render()});$$("[data-side]").forEach(b=>b.onclick=()=>{side=b.dataset.side;cat="all";render()});$$("[data-tag]").forEach(b=>b.onclick=()=>{tag=tag===b.dataset.tag?"":b.dataset.tag;side="all";render()});$("#q").oninput=e=>{query=e.target.value.trim();side="all";render()};$("#sort").onchange=e=>{sort=e.target.value;render()};
+window.addEventListener("ragHubCommunityAPIReady",refreshStarredState);
+window.addEventListener("ragHubAuthChanged",refreshStarredState);$("#reset").onclick=()=>{cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value="trending";render()};$("#signin").onclick=null;$("#upload").onclick=null;document.addEventListener("keydown",e=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}});render();loadCatalog();
 </script>
 <div id="account-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:#10182888;backdrop-filter:blur(4px);z-index:30">
   <section role="dialog" aria-modal="true" aria-labelledby="account-title" style="width:min(100%,500px);max-height:90vh;overflow:auto;background:#fff;border:1px solid #e4e8ef;border-radius:18px;padding:24px;box-shadow:0 25px 80px #11182733">
