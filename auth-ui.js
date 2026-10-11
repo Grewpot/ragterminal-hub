@@ -87,15 +87,21 @@ async function createProfileFor(user, preferredUsername, displayName) {
   if (existing.data) return existing.data;
   let base = normalizeUsername(preferredUsername || user.user_metadata?.username || user.email?.split("@")[0] || "member");
   if (base.length < 3) base = "member";
-  const username = base.slice(0, 24) + "-" + user.id.replaceAll("-", "").slice(0, 7);
-  const row = {
-    user_id: user.id,
-    username,
-    display_name: (displayName || user.user_metadata?.display_name || user.email?.split("@")[0] || "Community member").trim().slice(0, 80)
-  };
-  const inserted = await supabase.from("community_profiles").insert(row).select("*").single();
-  if (inserted.error) throw inserted.error;
-  return inserted.data;
+  const suffix = user.id.replaceAll("-", "").slice(0, 7);
+  const candidates = preferredUsername ? [base, base.slice(0, 24) + "-" + suffix] : [base.slice(0, 24) + "-" + suffix, base];
+  let lastError = null;
+  for (const username of [...new Set(candidates)]) {
+    const row = {
+      user_id: user.id,
+      username,
+      display_name: (displayName || user.user_metadata?.display_name || user.email?.split("@")[0] || "Community member").trim().slice(0, 80)
+    };
+    const inserted = await supabase.from("community_profiles").insert(row).select("*").single();
+    if (!inserted.error) return inserted.data;
+    lastError = inserted.error;
+    if (inserted.error.code !== "23505") throw inserted.error;
+  }
+  throw lastError || new Error("Could not create your profile.");
 }
 async function refreshProfile(user) {
   currentUser = user || null;
@@ -171,7 +177,9 @@ async function handleSubmit(event) {
     showAlert(error.message || "Something went wrong. Please try again.", true);
   } finally {
     submit.disabled = false;
-    showAuthForm();
+    if (document.querySelector("#account-modal").style.display !== "none") {
+      submit.textContent = currentUser ? "Save profile" : (authMode === "signup" ? "Create account" : "Sign in");
+    }
   }
 }
 document.querySelector("#account-modal").addEventListener("click", (event) => { if (event.target.id === "account-modal") closeModal(); });
