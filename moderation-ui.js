@@ -22,7 +22,7 @@ function ensureUi(){
    upload.parentElement.insertBefore(actions,upload);
    actions.append(upload);
   }
-  if(launch.parentElement!==actions)actions.insertBefore(launch,upload);
+  if(launch.parentElement!==actions)actions.append(launch);
  }
  if(!modal){
   modal=node("div");modal.style.cssText="position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:18px;background:#10182899;backdrop-filter:blur(4px)";
