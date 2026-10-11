@@ -56,3 +56,6 @@ drop trigger if exists guard_repository_publication on public.community_reposito
 create trigger guard_repository_publication before insert or update of status on public.community_repositories for each row execute function public.guard_community_publication();
 drop trigger if exists guard_artifact_publication on public.community_artifacts;
 create trigger guard_artifact_publication before insert or update of status on public.community_artifacts for each row execute function public.guard_community_publication();
+
+-- Keep trigger function resolution deterministic; verified by Supabase Security Advisor.
+alter function public.guard_community_publication() set search_path = public, pg_temp;
