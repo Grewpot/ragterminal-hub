@@ -101,6 +101,15 @@ body{background:#fff;color:#111;font-family:Inter,system-ui,-apple-system,"Segoe
   .right.nav-actions .btn{min-height:32px;padding:0 6px;font-size:9px}
 }
 
+
+/* Center the section links while keeping account actions anchored on the right. */
+@media(min-width:700px){
+  .nav{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:20px}
+  .brand{grid-column:1;justify-self:start;min-width:0}
+  .links{grid-column:2;justify-self:center;margin-left:0;gap:22px;white-space:nowrap}
+  .nav-actions,.right.nav-actions{grid-column:3;justify-self:end;width:max-content;margin-left:0}
+}
+
 </style></head><body>
 <header class="top"><div class="wrap nav"><a class="brand" href="/" aria-label="RAGTerminal Discover"><img class="brand-icon" src="/assets/brain.head.profile.svg" alt=""><span>RAGTerminal<small> workbench</small></span></a><nav class="links" aria-label="Primary"><a href="/">Discover</a><a href="/community.html" aria-current="page">Community</a><a href="/download.html">Download</a></nav><div class="right nav-actions" aria-label="Account actions"><a class="btn main" href="/community.html?auth=signup">Sign Up</a><button class="btn secondary" id="signin" type="button">Sign In</button></div></div></header>
 <main class="wrap"><section class="hero"><div class="eyebrow">The community hub</div><h1>Find the building blocks<br><span>for your next RAG system.</span></h1><p>Explore community-published knowledge, flows, blocks, scripts and plays. Reuse what works, learn from the structure, and share improvements with the community.</p></section>

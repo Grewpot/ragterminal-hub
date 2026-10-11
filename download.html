@@ -54,13 +54,22 @@ main{min-height:calc(100vh - 150px)}.hero{padding:72px 0 54px;border-bottom:1px 
   .right.nav-actions .btn{min-height:32px;padding:0 6px;font-size:9px}
 }
 
+
+/* Center the section links while keeping account actions anchored on the right. */
+@media(min-width:700px){
+  .nav{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:20px}
+  .brand{grid-column:1;justify-self:start;min-width:0}
+  .links{grid-column:2;justify-self:center;margin-left:0;gap:22px;white-space:nowrap}
+  .nav-actions,.right.nav-actions{grid-column:3;justify-self:end;width:max-content;margin-left:0}
+}
+
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap nav">
 <a class="brand" href="/" aria-label="RAGTerminal Discover"><img class="brand-icon" src="/assets/brain.head.profile.svg" alt=""><span>RAGTerminal<small> workbench</small></span></a>
 <nav class="links" aria-label="Primary"><a href="/">Discover</a><a href="/community.html">Community</a><a href="/download.html" aria-current="page">Download</a></nav>
-<div class="nav-actions" aria-label="Account actions"><a class="auth-btn" href="/community.html?auth=signup">Sign Up</a><a class="auth-btn secondary" href="/community.html?auth=signin">Sign In</a></div>
+<div class="nav-actions" aria-label="Account actions"><a class="auth-btn" href="/community.html?auth=signup">Sign Up</a><a class="auth-btn secondary" id="header-signin" href="/community.html?auth=signin">Sign In</a></div>
 </div></header>
 <main class="wrap">
 <section class="hero">
@@ -76,4 +85,5 @@ main{min-height:calc(100vh - 150px)}.hero{padding:72px 0 54px;border-bottom:1px 
 <div class="note"><strong>Release status</strong><br>The Hub repository currently has no published GitHub Releases for the desktop app. This page will be updated when a public installer can be downloaded, rather than linking to an unrelated repository or an unavailable binary.</div>
 </main>
 <footer class="footer"><div class="wrap footer-inner"><span>© 2026 RAGTerminal · Download</span><nav class="footer-links" aria-label="Footer"><a href="/">Discover</a><a href="/community.html">Community</a><a href="/download.html">Download</a></nav></div></footer>
+<script type="module" src="/header-auth.js"></script>
 </body></html>
