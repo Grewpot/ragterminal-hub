@@ -42,9 +42,9 @@ The upload flow is deployed and uses Supabase Storage plus the pack-lifecycle Ed
 2. The .pack is uploaded to the private community-staging bucket using an owner-scoped path.
 3. The authenticated Edge Function checks ownership, archive structure, size limits, file allowlist, manifest.json, JSONL records, declared checksums where supplied and common hard-coded secret patterns.
 4. A validation preview shows the manifest metadata, file list, record counts, size and package SHA-256.
-5. User must explicitly attest that they have rights to share the content under the selected license, then click **Publish package publicly**.
-6. The function rechecks the package checksum, copies the archive to community-releases, creates the repository and per-category catalog records/version metadata, updates the upload record, and removes the staging copy where possible.
-7. Published catalog cards expose the public .pack download URL. No uploaded script or flow is executed during validation or publication.
+5. The uploader must explicitly attest that they have rights to share the content under the selected license, then submit the validated package for moderator review. The package stays private while pending.
+6. An authorized moderator may inspect the validation report and choose **Approve & publish**, **Request changes**, or **Reject**. Approval rechecks the package checksum, copies the archive to community-releases, creates repository and per-category records/version metadata, and removes the staging copy where possible.
+7. Published catalog cards open an asset detail page with version, license, checksum, validated file summary and a download link for the complete public .pack. No uploaded script or flow is executed during validation or publication.
 
 ### Current archive limits
 
@@ -58,6 +58,20 @@ The upload flow is deployed and uses Supabase Storage plus the pack-lifecycle Ed
 
 Secret-pattern checks are heuristic guardrails, not a full malware scanner or a guarantee that content is harmless. The Hub does not execute user-provided code. Published packages become public and downloadable; private source material must not be uploaded.
 
+## Moderation bootstrap
+
+The moderator allowlist is private and cannot be managed from the public client. To provision a trusted moderator, first have them create and confirm their Supabase Auth account. Then, as a trusted project administrator, run this once in the Supabase SQL Editor after replacing the email with that moderator account:
+
+```sql
+insert into public.community_moderators (user_id, role)
+select id, 'admin'
+from auth.users
+where lower(email) = lower('moderator@example.com')
+on conflict (user_id) do update set role = excluded.role;
+```
+
+If the query inserts zero rows, confirm the user exists and has completed registration. Never add a public self-service moderator enrollment flow or put server credentials in browser code. The review queue appears only for allowlisted users. Rejection and change requests require a moderator note; approval is the only path that makes the package public.
+
 ## Database and storage
 
 Tables include:
@@ -69,8 +83,9 @@ Tables include:
 - community_stars
 - community_download_events
 - community_uploads
-
-Row Level Security is enabled. community-staging is private and scoped to the uploader's user ID. community-releases is public-read only; client policies do not permit public uploads. pack-lifecycle requires a valid user JWT and performs server-side validation/publication using server credentials.
+- community_moderators (private moderator allowlist; service-role controlled)
+  
+`community_uploads` tracks validation, license attestation and review status separately. Row Level Security is enabled. community-staging is private and scoped to the uploader's user ID. community-releases is public-read only; client policies do not permit public uploads. pack-lifecycle requires a valid user JWT and performs server-side validation/publication using server credentials.
 
 The Security Advisor returned no security lints after the upload pipeline changes. Re-check security advisors after future schema/policy changes.
 
@@ -85,7 +100,7 @@ These migrations have already been applied to the connected Supabase project. Re
 
 ## Not yet implemented
 
-- Admin/moderator review queue and takedown workflow.
+- Takedown/withdrawal workflow for already-published packages.
 - Content/license review beyond uploader attestation and automated checks.
 - Persistent user stars, comments and download analytics in the UI.
 - Per-asset signed downloads (current download is the complete published .pack).
