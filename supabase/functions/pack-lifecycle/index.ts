@@ -45,17 +45,33 @@ function json(body: unknown, status = 200, origin: string | null = null) {
     headers: { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": "no-store" }
   });
 }
-function getSecretKey(): string {
+function createAdminClient() {
   const secrets = Deno.env.get("SUPABASE_SECRET_KEYS");
+  let secretKey = "";
   if (secrets) {
     try {
       const parsed = JSON.parse(secrets);
-      if (parsed.default) return parsed.default;
+      if (typeof parsed.default === "string") secretKey = parsed.default;
     } catch { /* use legacy key below */ }
   }
-  const legacy = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!legacy) throw new Error("Supabase server secret is not configured for this function.");
-  return legacy;
+  const legacyServiceRoleJwt = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const apiKey = secretKey || legacyServiceRoleJwt;
+  if (!apiKey) throw new Error("Supabase server secret is not configured for this function.");
+  // Supabase's new sb_secret keys are API keys, not JWTs. Keep the key in apikey;
+  // if the legacy service-role JWT exists, use it for Authorization. Otherwise
+  // omit Authorization so the secret key is not incorrectly parsed as a JWT.
+  return createClient(SUPABASE_URL, apiKey, {
+    global: {
+      fetch: (input, init = {}) => {
+        const headers = new Headers(init.headers);
+        headers.set("apikey", apiKey);
+        if (legacyServiceRoleJwt) headers.set("Authorization", "Bearer " + legacyServiceRoleJwt);
+        else headers.delete("Authorization");
+        return fetch(input, { ...init, headers });
+      }
+    },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
 }
 function safePath(path: string): boolean {
   if (!path || path.length > 200 || path.includes("\\") || path.includes("\0") ||
@@ -253,9 +269,7 @@ async function getContext(req: Request) {
   });
   const { data, error } = await userClient.auth.getUser(token);
   if (error || !data.user) throw new Error("Your session is invalid or has expired. Please sign in again.");
-  const admin = createClient(SUPABASE_URL, getSecretKey(), {
-    auth: { persistSession: false, autoRefreshToken: false }
-  });
+  const admin = createAdminClient();
   return { user: data.user, userClient, admin };
 }
 async function loadOwnedUpload(admin: ReturnType<typeof createClient>, uploadId: string, ownerId: string) {
