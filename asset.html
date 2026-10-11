@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8f9fc"><title>Asset details — RAGTerminal Hub</title>
+<meta name="description" content="Inspect a published RAGTerminal community asset and download its package.">
+<style>
+:root{--ink:#172033;--muted:#738096;--line:#e4e8ef;--blue:#375df5;--bg:#f8f9fc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--blue)}.top{background:#ffffffed;border-bottom:1px solid var(--line);padding:16px 22px}.nav{max-width:1050px;margin:auto;display:flex;align-items:center;gap:14px}.brand{font-weight:850;font-size:16px}.back{margin-left:auto;text-decoration:none;font-size:12px;font-weight:750}.wrap{max-width:1050px;padding:32px 22px 70px;margin:auto}.crumb{font-size:11px;color:var(--muted);margin-bottom:16px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:16px}.eyebrow{text-transform:uppercase;letter-spacing:1.5px;font-weight:850;color:var(--blue);font-size:10px}.head{display:flex;align-items:flex-start;gap:18px}.icon{background:#edf1ff;border-radius:14px;width:56px;height:56px;display:grid;place-items:center;font-size:24px;flex:none}.headmain{flex:1;min-width:0}.type{background:#edf1ff;color:#3154e9;font-size:10px;font-weight:850;padding:5px 8px;border-radius:7px}.title{font-size:clamp(25px,4vw,36px);line-height:1.15;letter-spacing:-1px;margin:7px 0}.muted{color:var(--muted)}.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:white;padding:11px 15px;border-radius:10px;font-weight:800;text-decoration:none;border:0}.btn.secondary{background:white;border:1px solid var(--line);color:var(--ink)}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.tag{border:1px solid var(--line);background:#fafbfd;border-radius:7px;padding:5px 8px;font-size:10px;color:#657187}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.label{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:850;color:#8b95a5}.value{font-size:13px;margin-top:4px;overflow-wrap:anywhere}.file{display:flex;justify-content:space-between;gap:12px;padding:10px;border:1px solid #edf0f5;border-radius:9px;font-size:11px}.file code{overflow-wrap:anywhere}.notice{padding:12px;background:#fff8e8;color:#805d19;border:1px solid #f1dfb4;border-radius:10px;font-size:11px}.empty{text-align:center;padding:45px 20px}.error{color:#b42318}.hash{font:11px/1.7 ui-monospace,SFMono-Regular,monospace;overflow-wrap:anywhere}@media(max-width:650px){.grid{grid-template-columns:1fr}.panel{padding:18px}.head{gap:12px}.icon{width:44px;height:44px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="nav"><span class="brand">⬡ RAGTerminal Hub</span><a class="back" href="/">← Back to community</a></div></header>
+<main class="wrap">
+<div class="crumb"><a href="/">Discover</a> / Asset details</div>
+<div id="state" class="panel empty"><strong>Loading published asset…</strong><p class="muted">Fetching the public catalog record.</p></div>
+<div id="detail" hidden>
+<section class="panel">
+<div class="eyebrow">Community asset</div>
+<div class="head" style="margin-top:13px"><div id="icon" class="icon">⬡</div><div class="headmain"><span id="type" class="type">ASSET</span><h1 id="title" class="title"></h1><div id="owner" class="muted" style="font-size:12px"></div></div></div>
+<p id="description" style="font-size:14px;max-width:800px;margin:22px 0 0"></p>
+<div id="tags" class="tags"></div>
+<div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:22px"><a id="download" class="btn" href="#" rel="noopener">⇩ Download complete .pack</a><a class="btn secondary" href="/">Explore more assets</a></div>
+</section>
+<div class="grid">
+<section class="panel"><div class="eyebrow">Release information</div><div class="grid" style="margin-top:17px">
+<div><div class="label">Version</div><div id="version" class="value">—</div></div>
+<div><div class="label">License</div><div id="license" class="value">—</div></div>
+<div><div class="label">Last updated</div><div id="updated" class="value">—</div></div>
+<div><div class="label">Package size</div><div id="size" class="value">—</div></div>
+</div><div class="label" style="margin-top:20px">SHA-256</div><div id="sha" class="value hash"></div></section>
+<section class="panel"><div class="eyebrow">Package safety</div><p style="font-size:12px;color:#536176">This page describes a published package. Downloading does not execute its flows or scripts. Inspect package contents and assess their behavior before importing or running them in any runtime.</p><div class="notice">Automated structural checks are guardrails, not a malware scan. Publication is not a guarantee that uploaded content is safe or appropriate.</div></section>
+</div>
+<section class="panel"><div class="eyebrow">Included files</div><p class="muted" style="font-size:12px;margin:7px 0 15px">Files are listed from the server-validated package preview.</p><div id="files" style="display:grid;gap:7px"></div></section>
+</div>
+</main>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.0";
+const URL="https://zjifbqdvbmvuiwgwdkey.supabase.co";
+const KEY="sb_publishable_cyOdOu5OkDSr8tX-EvbiqQ_oNbc3KHC";
+const $=s=>document.querySelector(s);
+const icons={knowledge:"▤",flow:"⑂",block:"▦",script:"‹/›",play:"▷"};
+function fail(message){$("#state").replaceChildren();$("#state").className="panel empty";const h=document.createElement("strong");h.className="error";h.textContent=message;$("#state").append(h);const p=document.createElement("p");p.className="muted";p.textContent="This asset may have been unpublished, or the link may be incomplete.";$("#state").append(p)}
+function humanSize(n){if(!Number.isFinite(Number(n)))return "—";const b=Number(n);return b<1024?b+" B":b<1048576?(b/1024).toFixed(1)+" KiB":(b/1048576).toFixed(2)+" MiB"}
+async function load(){
+ const id=new URLSearchParams(location.search).get("id");
+ if(!id||!/^[0-9a-f-]{36}$/i.test(id)){fail("Invalid asset link.");return}
+ const p=new URLSearchParams({select:"id,title,description,artifact_type,tags,license,latest_version,sha256,metadata,updated_at,repository:community_repositories!inner(id,slug,title,description,latest_version,package_storage_path,package_sha256,package_size_bytes,visibility,status)",id:"eq."+id,status:"eq.published","repository.status":"eq.published","repository.visibility":"eq.public",limit:"1"});
+ const res=await fetch(URL+"/rest/v1/community_artifacts?"+p.toString(),{headers:{apikey:KEY,Accept:"application/json"}});
+ if(!res.ok)throw new Error("Catalog request failed ("+res.status+").");
+ const rows=await res.json();if(!Array.isArray(rows)||!rows.length){fail("Asset not found.");return}
+ const a=rows[0],r=a.repository;
+ if(!r?.package_storage_path){fail("The package release is unavailable.");return}
+ $("#state").hidden=true;$("#detail").hidden=false;
+ document.title=a.title+" — RAGTerminal Hub";
+ $("#icon").textContent=icons[a.artifact_type]||"⬡";$("#type").textContent=(a.artifact_type||"asset").toUpperCase();
+ $("#title").textContent=a.title;$("#owner").textContent="by "+(r.slug||"community contributor")+" · package "+r.title;
+ $("#description").textContent=a.description||r.description||"No description was provided.";
+ (a.tags||[]).forEach(t=>{const e=document.createElement("span");e.className="tag";e.textContent=t;$("#tags").append(e)});
+ const objectPath=r.package_storage_path.split("/").map(encodeURIComponent).join("/");
+ $("#download").href=URL+"/storage/v1/object/public/community-releases/"+objectPath+"?download="+encodeURIComponent((r.slug||"RAGTerminal")+".pack");
+ $("#version").textContent=a.latest_version||r.latest_version||"—";$("#license").textContent=a.license||"License unspecified";
+ $("#updated").textContent=a.updated_at?new Date(a.updated_at).toLocaleString():"—";
+ $("#size").textContent=humanSize(r.package_size_bytes);$("#sha").textContent=a.sha256||r.package_sha256||"Not provided";
+ const files=Array.isArray(a.metadata?.files)?a.metadata.files:[];
+ $("#files").replaceChildren();
+ if(!files.length){$("#files").textContent="No file summary is available."}
+ files.forEach(f=>{const row=document.createElement("div");row.className="file";const path=document.createElement("code");path.textContent=f.path||"unnamed";const stat=document.createElement("span");stat.className="muted";stat.textContent=f.records==null?humanSize(f.size_bytes):f.records+" records";row.append(path,stat);$("#files").append(row)});
+}
+load().catch(e=>fail(e.message||"Could not load this asset."));
+</script>
+</body></html>
