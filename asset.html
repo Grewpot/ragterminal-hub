@@ -37,6 +37,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.117.3";
 const URL="https://zjifbqdvbmvuiwgwdkey.supabase.co";
 const KEY="sb_publishable_cyOdOu5OkDSr8tX-EvbiqQ_oNbc3KHC";
+const supabase=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const $=s=>document.querySelector(s);
 const icons={knowledge:"▤",flow:"⑂",block:"▦",script:"‹/›",play:"▷"};
 function fail(message){$("#state").replaceChildren();$("#state").className="panel empty";const h=document.createElement("strong");h.className="error";h.textContent=message;$("#state").append(h);const p=document.createElement("p");p.className="muted";p.textContent="This asset may have been unpublished, or the link may be incomplete.";$("#state").append(p)}
@@ -66,6 +67,24 @@ async function load(){
  if(!files.length){$("#files").textContent="No file summary is available."}
  files.forEach(f=>{const row=document.createElement("div");row.className="file";const path=document.createElement("code");path.textContent=f.path||"unnamed";const stat=document.createElement("span");stat.className="muted";stat.textContent=f.records==null?humanSize(f.size_bytes):f.records+" records";row.append(path,stat);$("#files").append(row)});
 }
+$("#download").addEventListener("click",event=>{
+ if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+ const href=$("#download").href;
+ if(!href||href.endsWith("#"))return;
+ event.preventDefault();
+ void (async()=>{
+  try{
+   const {data:{session},error:sessionError}=await supabase.auth.getSession();
+   if(sessionError)throw sessionError;
+   if(session?.user){
+    const artifactId=new URLSearchParams(location.search).get("id");
+    const {error}=await supabase.from("community_download_events").insert({artifact_id:artifactId,user_id:session.user.id});
+    if(error)throw error;
+   }
+  }catch(error){console.warn("Community download metric was not recorded",error)}
+  window.location.assign(href);
+ })();
+});
 load().catch(e=>fail(e.message||"Could not load this asset."));
 </script>
 </body></html>
