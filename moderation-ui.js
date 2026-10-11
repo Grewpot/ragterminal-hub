@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.117.3";
 const SUPABASE_URL="https://zjifbqdvbmvuiwgwdkey.supabase.co";
 const SUPABASE_KEY="sb_publishable_cyOdOu5OkDSr8tX-EvbiqQ_oNbc3KHC";
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
