@@ -54,19 +54,23 @@ body{background:#fff;color:#111;font-family:Inter,system-ui,-apple-system,"Segoe
 @media(max-width:620px){.links{display:flex;gap:12px;font-size:12px}.links a{padding:18px 0}.right{gap:4px}.right .btn{padding:7px 8px;font-size:10px}}@media(max-width:480px){.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:9px}.links a{font-size:11px}.right .btn{padding:7px 6px;font-size:9px}}
 
 
-/* Keep the moderator action beside Upload Asset without changing the upload button's grid sizing. */
+/* Keep catalog action buttons consistent; group moderator controls without stretching Upload Asset. */
 .searchrow .search-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;flex-wrap:nowrap}
-.searchrow .search-actions>.btn{flex:0 0 auto;width:auto;min-width:0;white-space:nowrap}
-.searchrow #review-queue-launch{min-height:44px;padding:0 12px;font-size:12px;line-height:1.2}
+.searchrow .search-actions>.btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;flex:0 0 auto;width:auto;min-width:0;font-size:14px;font-weight:750;line-height:1.2;white-space:nowrap}
+.searchrow #review-queue-launch{min-height:44px;padding:10px 14px;font-size:14px;font-weight:750;line-height:1.2;text-align:center;display:inline-flex;align-items:center;justify-content:center}
 @media(max-width:620px){
  .searchrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
  .searchrow .search-actions{grid-column:2;max-width:100%;gap:5px;flex-wrap:wrap}
  .searchrow .search-actions>.btn{min-height:36px;padding:8px 7px;font-size:10px;line-height:1.2}
+ .searchrow #reset,.searchrow #upload,.searchrow #review-queue-launch{font-size:10px}
+ .searchrow #review-queue-launch{min-height:36px;padding:8px 7px}
  .searchrow #upload{grid-column:auto}
 }
 @media(max-width:400px){
  .searchrow .search-actions{gap:4px}
  .searchrow .search-actions>.btn{padding:7px 5px;font-size:9px}
+ .searchrow #reset,.searchrow #upload,.searchrow #review-queue-launch{font-size:9px}
+ .searchrow #review-queue-launch{padding:7px 5px}
 }
 
 /* Shared page frame: consistent gutters and navigation across Discover, Community, and Download */
