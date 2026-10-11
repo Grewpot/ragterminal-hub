@@ -71,6 +71,21 @@ function sha256Hex(bytes: Uint8Array): Promise<string> {
 function toPlainObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
+const SECRET_PATTERNS: Array<[string, RegExp]> = [
+  ["private-key material", /-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----/i],
+  ["AWS access key", /\bAKIA[0-9A-Z]{16}\b/],
+  ["GitHub token", /\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,})\b/],
+  ["Supabase secret key", /\bsb_secret_[A-Za-z0-9_-]{20,}\b/],
+  ["OpenAI-style API key", /\bsk-[A-Za-z0-9_-]{24,}\b/],
+  ["hard-coded credential assignment", /\b(?:api[_-]?key|client[_-]?secret|access[_-]?token|password|secret)\b\s*[:=]\s*["'](?!\s*(?:\$\{|<|your_|example|replace[_-]?me|change[_-]?me|redacted|placeholder))[^"'\r\n]{16,}["']/i]
+];
+function detectSecrets(path: string, content: string) {
+  for (const [label, pattern] of SECRET_PATTERNS) {
+    if (pattern.test(content)) {
+      throw new Error("Potential " + label + " detected in " + path + ". Remove credentials and upload a sanitized package. Secret values are not included in this report.");
+    }
+  }
+}
 function validateJsonl(path: string, text: string) {
   const encoder = new TextEncoder();
   const lines = text.split(/\r?\n/);
@@ -152,6 +167,7 @@ async function validateArchive(bytes: Uint8Array) {
       if (compressed > 0 && expanded / compressed > 100) throw new Error(path + " exceeds the compression-ratio safety limit.");
       const textContent = await entry.getData(new TextWriter());
       if (typeof textContent !== "string") throw new Error("Could not decode " + path + " as text.");
+      detectSecrets(path, textContent);
       const encoded = new TextEncoder().encode(textContent);
       if (encoded.byteLength !== expanded) {
         // ZIP metadata must match actual decoded bytes. TextWriter normalizes UTF-8, so only reject gross disagreement.
@@ -215,7 +231,8 @@ async function validateArchive(bytes: Uint8Array) {
         jsonl_record_count: recordTotal,
         expanded_size_bytes: totalExpanded,
         categories,
-        warnings: ["Scripts and flows were parsed as data only and were not executed."]
+        security_checks: ["allow-listed paths", "size and compression-ratio limits", "JSON/JSONL parsing", "common secret-pattern screening"],
+        warnings: ["Scripts and flows were parsed as data only and were not executed.", "Secret-pattern screening is heuristic and is not a full malware analysis service."]
       }
     };
   } finally {
