@@ -8,6 +8,8 @@ create table if not exists public.community_moderators (
 alter table public.community_moderators enable row level security;
 revoke all on public.community_moderators from anon, authenticated;
 grant select, insert, update, delete on public.community_moderators to service_role;
+create policy "Service role manages moderator allowlist"
+  on public.community_moderators for all to service_role using (true) with check (true);
 
 alter table public.community_uploads
   add column if not exists review_status text not null default 'not_submitted'
