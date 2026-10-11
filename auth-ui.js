@@ -194,13 +194,220 @@ document.querySelector("#signout").addEventListener("click", async () => {
   toast("You have signed out.");
 });
 signinButton?.addEventListener("click", () => { openModal(); showAuthForm(); });
+const uploadModal = document.querySelector("#upload-modal");
+let activeUploadId = null;
+function uploadAlert(message, isError = false) {
+  const alert = document.querySelector("#upload-alert");
+  alert.textContent = message;
+  alert.style.display = "block";
+  alert.style.background = isError ? "#fff1f0" : "#f3f6ff";
+  alert.style.color = isError ? "#b42318" : "#3154e9";
+}
+function clearUploadAlert() {
+  const alert = document.querySelector("#upload-alert");
+  alert.textContent = "";
+  alert.style.display = "none";
+}
+function openUploadModal() {
+  clearUploadAlert();
+  uploadModal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeUploadModal() {
+  uploadModal.style.display = "none";
+  document.body.style.overflow = "";
+  clearUploadAlert();
+}
+function uploadField(id) { return document.querySelector("#" + id); }
+function resetUploadPreview() {
+  activeUploadId = null;
+  uploadField("pack-upload-form").style.display = "grid";
+  uploadField("pack-preview").style.display = "none";
+  uploadField("pack-file-list").replaceChildren();
+  uploadField("pack-validation-summary").replaceChildren();
+  uploadField("pack-public-link").style.display = "none";
+  uploadField("pack-public-link").removeAttribute("href");
+  uploadField("pack-attestation").checked = false;
+  uploadField("pack-attestation-row").style.display = "flex";
+  uploadField("pack-publish-submit").style.display = "block";
+  uploadField("pack-publish-submit").disabled = true;
+  uploadField("pack-publish-submit").style.opacity = ".55";
+  uploadField("pack-publish-submit").textContent = "Publish package publicly";
+}
+function slugFromTitle(value) {
+  return value.toLowerCase().trim().replace(/[^a-z0-9._-]+/g, "-").replace(/^[^a-z0-9]+/, "").slice(0, 80);
+}
+uploadField("pack-title").addEventListener("input", () => {
+  const slugInput = uploadField("pack-slug");
+  if (slugInput.dataset.edited !== "true") slugInput.value = slugFromTitle(uploadField("pack-title").value);
+});
+uploadField("pack-slug").addEventListener("input", () => { uploadField("pack-slug").dataset.edited = "true"; });
+uploadField("pack-tags").addEventListener("input", () => {});
+uploadField("pack-attestation").addEventListener("change", () => {
+  const button = uploadField("pack-publish-submit");
+  button.disabled = !uploadField("pack-attestation").checked || !activeUploadId;
+  button.style.opacity = button.disabled ? ".55" : "1";
+});
+uploadField("upload-modal-close").addEventListener("click", closeUploadModal);
+uploadModal.addEventListener("click", (event) => { if (event.target === uploadModal) closeUploadModal(); });
+async function invokePackLifecycle(body) {
+  const { data, error } = await supabase.functions.invoke("pack-lifecycle", { body });
+  if (!error) return data;
+  let message = error.message || "Package operation failed.";
+  try {
+    const response = error.context;
+    if (response && typeof response.json === "function") {
+      const detail = await response.clone().json();
+      if (detail && typeof detail.error === "string") message = detail.error;
+    }
+  } catch { /* retain Supabase Functions error */ }
+  throw new Error(message);
+}
+function showValidationPreview(result) {
+  const upload = result.upload;
+  const preview = result.preview || upload.validation_report || {};
+  uploadField("pack-upload-form").style.display = "none";
+  uploadField("pack-preview").style.display = "block";
+  uploadField("pack-validation-badge").textContent = "VALIDATED";
+  uploadField("pack-validation-badge").style.background = "#e5f8ef";
+  uploadField("pack-validation-badge").style.color = "#167653";
+  uploadField("pack-preview-title").textContent = upload.title;
+  const summary = uploadField("pack-validation-summary");
+  summary.replaceChildren();
+  [
+    "Format: " + (preview.format || "ZIP .pack"),
+    "Files: " + (preview.file_count ?? (upload.discovered_files || []).length),
+    "JSONL records: " + (preview.jsonl_record_count ?? "—"),
+    "Expanded size: " + Math.round((preview.expanded_size_bytes || upload.size_bytes || 0) / 1024) + " KiB",
+    "License: " + upload.license,
+    "SHA-256: " + (upload.sha256 || preview.package_sha256 || "—")
+  ].forEach(line => summary.append(document.createTextNode(line), document.createElement("br")));
+  const list = uploadField("pack-file-list");
+  list.replaceChildren();
+  (upload.discovered_files || []).forEach(file => {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;justify-content:space-between;gap:12px;padding:8px 10px;background:#fafbfd;border:1px solid #edf0f5;border-radius:8px";
+    const path = document.createElement("span");
+    path.textContent = file.path;
+    path.style.wordBreak = "break-all";
+    const details = document.createElement("span");
+    details.textContent = file.records == null ? Math.round(file.size_bytes / 1024) + " KiB" : file.records + " records";
+    details.style.cssText = "color:#7a8596;white-space:nowrap";
+    row.append(path, details);
+    list.append(row);
+  });
+  (preview.warnings || []).forEach(warning => {
+    const note = document.createElement("p");
+    note.textContent = "Safety note: " + warning;
+    note.style.cssText = "font-size:11px;color:#7c5c1b;margin:10px 0 0";
+    summary.append(note);
+  });
+  uploadField("pack-attestation").checked = false;
+  uploadField("pack-publish-submit").disabled = true;
+  uploadField("pack-publish-submit").style.opacity = ".55";
+}
+uploadField("pack-upload-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearUploadAlert();
+  if (!currentUser) { uploadAlert("Sign in before uploading.", true); return; }
+  const file = uploadField("pack-file").files?.[0];
+  const title = uploadField("pack-title").value.trim();
+  const slug = uploadField("pack-slug").value.trim();
+  const description = uploadField("pack-description").value.trim();
+  const license = uploadField("pack-license").value;
+  const tags = [...new Set(uploadField("pack-tags").value.split(",").map(t => t.trim()).filter(Boolean))].slice(0, 10);
+  if (!file) { uploadAlert("Choose a .pack file to continue.", true); return; }
+  if (!file.name.toLowerCase().endsWith(".pack")) { uploadAlert("Only .pack files are accepted.", true); return; }
+  if (file.size < 22 || file.size > 50 * 1024 * 1024) { uploadAlert("The .pack file must be between 22 bytes and 50 MiB.", true); return; }
+  if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug)) { uploadAlert("Slug must be 2–81 lowercase characters and use letters, numbers, dots, underscores or hyphens.", true); return; }
+  if (!license) { uploadAlert("Choose a license before uploading.", true); return; }
+  const button = uploadField("pack-upload-submit");
+  button.disabled = true;
+  button.textContent = "Uploading to private staging…";
+  let storagePath = null;
+  let registeredUploadId = null;
+  try {
+    const uploadId = crypto.randomUUID();
+    storagePath = currentUser.id + "/" + uploadId + ".pack";
+    const { error: storageError } = await supabase.storage.from("community-staging").upload(storagePath, file, {
+      cacheControl: "0", upsert: false, contentType: "application/octet-stream"
+    });
+    if (storageError) throw new Error("Private upload failed: " + storageError.message);
+    const { data: row, error: rowError } = await supabase.from("community_uploads").insert({
+      id: uploadId,
+      owner_id: currentUser.id,
+      original_file_name: file.name.slice(0, 255),
+      title, slug, description, tags, license,
+      storage_path: storagePath,
+      size_bytes: file.size,
+      status: "uploaded"
+    }).select("id").single();
+    if (rowError) throw new Error("Could not register the private upload: " + rowError.message);
+    registeredUploadId = row.id;
+    activeUploadId = row.id;
+    button.textContent = "Validating archive…";
+    const result = await invokePackLifecycle({ action: "validate", upload_id: row.id });
+    if (!result?.ok || !result.upload) throw new Error("Validation service returned an incomplete response.");
+    showValidationPreview(result);
+    uploadAlert("Validation passed. Review the file list and license attestation before publication.");
+  } catch (error) {
+    if (storagePath && !registeredUploadId) {
+      await supabase.storage.from("community-staging").remove([storagePath]);
+    }
+    activeUploadId = null;
+    uploadAlert((error.message || "Upload failed.") + "\n\nYour file remains private. Correct the package and upload it again.", true);
+    button.textContent = "Upload to private staging & validate";
+    button.disabled = false;
+    return;
+  } finally {
+    if (activeUploadId) {
+      button.disabled = false;
+      button.textContent = "Upload another package";
+    } else {
+      button.disabled = false;
+    }
+  }
+});
+uploadField("pack-publish-submit").addEventListener("click", async () => {
+  clearUploadAlert();
+  if (!activeUploadId || !uploadField("pack-attestation").checked) {
+    uploadAlert("Validate the package and confirm the license attestation first.", true);
+    return;
+  }
+  const button = uploadField("pack-publish-submit");
+  button.disabled = true;
+  button.textContent = "Publishing…";
+  try {
+    const result = await invokePackLifecycle({ action: "publish", upload_id: activeUploadId, attestation: true });
+    if (!result?.ok || !result.repository) throw new Error("Publication service returned an incomplete response.");
+    button.textContent = "Published successfully";
+    button.style.opacity = "1";
+    uploadField("pack-attestation-row").style.display = "none";
+    uploadField("pack-validation-badge").textContent = "PUBLISHED";
+    uploadField("pack-preview-title").textContent = result.repository.title;
+    uploadAlert("Package published successfully. Community categories: " + (result.published_categories || []).join(", "));
+    const link = uploadField("pack-public-link");
+    link.href = result.package_url;
+    link.textContent = "Download published RAGTerminal.pack";
+    link.style.display = "inline-block";
+    uploadButton.textContent = currentProfile?.username ? "@" + currentProfile.username : "My profile";
+    if (typeof window.ragHubReloadCatalog === "function") await window.ragHubReloadCatalog();
+    activeUploadId = null;
+  } catch (error) {
+    uploadAlert(error.message || "Publication failed.", true);
+    button.disabled = false;
+    button.textContent = "Retry publication";
+  }
+});
 uploadButton?.addEventListener("click", () => {
   if (!currentUser) {
     authMode = "signin"; openModal(); showAuthForm();
     showAlert("Please sign in before uploading an asset.");
   } else {
-    openModal(); showAuthForm();
-    showAlert("You are signed in. Secure package upload and validation will be enabled in the next milestone.");
+    resetUploadPreview();
+    uploadField("pack-upload-form").reset();
+    uploadField("pack-slug").dataset.edited = "";
+    openUploadModal();
   }
 });
 document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
