@@ -6,7 +6,24 @@ const $=s=>document.querySelector(s);
 let launch,modal,content,alertBox,queue=[];
 function node(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
 function ensureUi(){
- if(!launch){launch=node("button","Review queue","btn");launch.type="button";launch.style.cssText="display:none;border-color:#f1dfb4;background:#fff8e8;color:#805d19";launch.onclick=openQueue;$("#upload")?.parentElement?.insertBefore(launch,$("#upload"))}
+ const upload=$("#upload");
+ if(!launch){
+  launch=node("button","Review queue","btn");
+  launch.type="button";
+  launch.id="review-queue-launch";
+  launch.style.cssText="display:none;border-color:#f1dfb4;background:#fff8e8;color:#805d19";
+  launch.onclick=openQueue;
+ }
+ if(upload){
+  let actions=upload.closest(".search-actions");
+  if(!actions){
+   actions=document.createElement("div");
+   actions.className="search-actions";
+   upload.parentElement.insertBefore(actions,upload);
+   actions.append(upload);
+  }
+  if(launch.parentElement!==actions)actions.insertBefore(launch,upload);
+ }
  if(!modal){
   modal=node("div");modal.style.cssText="position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:18px;background:#10182899;backdrop-filter:blur(4px)";
   const shell=node("section");shell.setAttribute("role","dialog");shell.setAttribute("aria-modal","true");shell.style.cssText="width:min(100%,900px);max-height:92vh;overflow:auto;background:#fff;border-radius:16px;padding:22px;border:1px solid #e4e8ef";
