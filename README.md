@@ -87,23 +87,34 @@ Tables include:
   
 `community_uploads` tracks validation, license attestation and review status separately. Row Level Security is enabled. community-staging is private and scoped to the uploader's user ID. community-releases is public-read only; client policies do not permit public uploads. pack-lifecycle requires a valid user JWT and performs server-side validation/publication using server credentials.
 
-The Security Advisor returned no security lints after the upload pipeline changes. Re-check security advisors after future schema/policy changes.
+After the current policy hardening, the Security Advisor still reports **Leaked Password Protection Disabled**. Enable it in Authentication password-security settings and re-check the advisor after future schema/policy changes.
 
 ## Schema migration files
 
 - supabase/migrations/202610110001_community_catalog.sql
 - supabase/migrations/202610110002_secure_upload_pipeline.sql
 - supabase/migrations/202610110003_community_moderation_review.sql
+- supabase/migrations/202610110004_tighten_anonymous_community_privileges.sql
 - supabase/functions/pack-lifecycle/index.ts
 - supabase/functions/pack-lifecycle/deno.json
 
 These migrations have already been applied to the connected Supabase project. Reconcile remote migration history before running supabase db push against an existing database.
 
+
+## Current hardening changes (2026-10-11)
+
+- Browser catalog requests pages of 100 records (up to a 10,000-item safety cap), uses stable ordering, and shows explicit loading/empty/error states. Sample cards are only loaded when a user explicitly selects **Preview example cards**.
+- Persistent stars use the authenticated user's own rows in `community_stars`; signed-in downloads insert their own row into `community_download_events`. No fake public star/download totals are shown. Trending and popularity sorts remain disabled for live records until a security-reviewed aggregate metrics API is available.
+- Anonymous database role has read-only access to published catalog tables and no access to upload rows or write privileges for repository/artifact/version tables. Existing public catalog reads, authenticated upload registration, moderator review and approved public downloads remain supported.
+- The Hub browser clients and `pack-lifecycle` Edge Function are pinned to Supabase JS `2.117.3`.
+- Native workspace-sharing requests page through existing local Knowledge, Flow, Block, Script and Play records rather than silently using only the first 500 records. Provider API keys are migrated from legacy preferences into macOS Keychain; a migration/persistence warning is shown if Keychain access fails.
+- Custom SMTP and leaked-password protection are project dashboard settings and must be configured/verified by a Supabase administrator. These fixes do not claim to change either setting automatically.
+
 ## Not yet implemented
 
 - Takedown/withdrawal workflow for already-published packages.
 - Content/license review beyond uploader attestation and automated checks.
-- Persistent user stars, comments and download analytics in the UI.
+- Comments and public aggregate engagement metrics (stars/download counts and popularity rankings). Signed-in users can save persistent stars, and signed-in download events are recorded; the public UI intentionally disables popularity rankings until a safe aggregate endpoint is provided.
 - Per-asset signed downloads (current download is the complete published .pack).
 - Full malware analysis, semantic validation of every domain schema, and safe execution sandboxing.
 - Knowledge import for the consumer workspace: chunking, embeddings, vector indexing and reindex controls.

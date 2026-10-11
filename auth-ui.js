@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.117.3";
 
 const SUPABASE_URL = "https://zjifbqdvbmvuiwgwdkey.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_cyOdOu5OkDSr8tX-EvbiqQ_oNbc3KHC";
@@ -125,7 +125,72 @@ async function refreshProfile(user) {
     }
   }
   if (signinButton) signinButton.textContent = user ? (currentProfile?.username ? "@" + currentProfile.username : "My profile") : "Sign in";
+  window.dispatchEvent(new CustomEvent("ragHubAuthChanged"));
 }
+function authErrorMessage(error) {
+  const message = String(error?.message || "Something went wrong. Please try again.");
+  const normalized = message.toLowerCase();
+  if (normalized.includes("email rate limit exceeded") || normalized.includes("over_email_send_rate_limit")) {
+    return "Supabase has temporarily rate-limited confirmation emails. Check your inbox and spam folder for an earlier message, wait for the limit to reset, and avoid repeated sign-up attempts. For ongoing use, configure custom SMTP in Supabase Dashboard → Authentication → Emails → SMTP Settings.";
+  }
+  if (normalized.includes("user already registered") || normalized.includes("already been registered")) {
+    return "An account may already exist for this email. Try Sign in instead of creating another account.";
+  }
+  return message;
+}
+window.ragHubOpenAccount = (mode = "signin") => {
+  authMode = mode === "signup" ? "signup" : "signin";
+  openModal();
+  showAuthForm();
+};
+window.ragHubCommunityAPI = {
+  async loadStars(artifactIds) {
+    const { data: auth, error: authError } = await supabase.auth.getSession();
+    if (authError) throw authError;
+    if (!auth.session?.user || !Array.isArray(artifactIds) || artifactIds.length === 0) return [];
+    const ids = [...new Set(artifactIds.filter(id => /^[0-9a-f-]{36}$/i.test(id)))];
+    const starredIds = [];
+    for (let start = 0; start < ids.length; start += 100) {
+      const chunk = ids.slice(start, start + 100);
+      const { data, error } = await supabase.from("community_stars")
+        .select("artifact_id").in("artifact_id", chunk);
+      if (error) throw error;
+      for (const row of data || []) starredIds.push(row.artifact_id);
+    }
+    return starredIds;
+  },
+  async toggleStar(artifactId, wasStarred) {
+    const { data: auth, error: authError } = await supabase.auth.getSession();
+    if (authError) throw authError;
+    if (!auth.session?.user) return { requiresSignIn: true };
+    if (!/^[0-9a-f-]{36}$/i.test(artifactId)) throw new Error("This sample card is not a published database asset.");
+    if (wasStarred) {
+      const { error } = await supabase.from("community_stars")
+        .delete().eq("artifact_id", artifactId).eq("user_id", auth.session.user.id);
+      if (error) throw error;
+      return { starred: false };
+    }
+    const { error } = await supabase.from("community_stars").insert({
+      artifact_id: artifactId,
+      user_id: auth.session.user.id
+    });
+    if (error && error.code !== "23505") throw error;
+    return { starred: true };
+  },
+  async recordDownload(artifactId) {
+    const { data: auth, error: authError } = await supabase.auth.getSession();
+    if (authError) throw authError;
+    if (!auth.session?.user) return { recorded: false };
+    const { error } = await supabase.from("community_download_events").insert({
+      artifact_id: artifactId,
+      user_id: auth.session.user.id
+    });
+    if (error) throw error;
+    return { recorded: true };
+  }
+};
+window.dispatchEvent(new CustomEvent("ragHubCommunityAPIReady"));
+
 async function handleSubmit(event) {
   event.preventDefault();
   clearAlert();
@@ -183,7 +248,7 @@ async function handleSubmit(event) {
       toast("Signed in successfully.");
     }
   } catch (error) {
-    showAlert(error.message || "Something went wrong. Please try again.", true);
+    showAlert(authErrorMessage(error), true);
   } finally {
     submit.disabled = false;
     if (document.querySelector("#account-modal").style.display !== "none") {
