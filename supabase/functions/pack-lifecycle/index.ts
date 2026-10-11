@@ -288,11 +288,41 @@ async function getPackageBytes(admin: ReturnType<typeof createClient>, upload: R
   if (upload.sha256 && upload.sha256 !== hash) throw new Error("Stored package checksum does not match the validated checksum.");
   return { bytes, hash };
 }
+async function ensureModerator(admin: ReturnType<typeof createClient>, userId: string) {
+  const { data, error } = await admin.from("community_moderators").select("role").eq("user_id", userId).maybeSingle();
+  if (error) throw new Error("Could not verify moderator access.");
+  if (!data || !["moderator", "admin"].includes(data.role)) throw new Error("Moderator access is required.");
+  return data.role as string;
+}
+async function listModerationQueue(admin: ReturnType<typeof createClient>) {
+  const { data, error } = await admin.from("community_uploads")
+    .select("id,owner_id,original_file_name,title,slug,description,tags,license,size_bytes,sha256,status,review_status,rights_attested_at,manifest,discovered_files,validation_report,created_at,updated_at")
+    .eq("status", "validated").eq("review_status", "pending").order("rights_attested_at", { ascending: true }).limit(100);
+  if (error) throw new Error("Could not load the moderation queue.");
+  return data || [];
+}
+async function handleSubmitReview(admin: ReturnType<typeof createClient>, uploadId: string, ownerId: string, attestation: unknown) {
+  if (attestation !== true) throw new Error("Please confirm that you have the right to share this content under the selected license.");
+  const upload = await loadOwnedUpload(admin, uploadId, ownerId);
+  if (upload.status !== "validated") throw new Error("Only successfully validated uploads can be submitted for review.");
+  if (upload.review_status === "pending") throw new Error("This package is already waiting for moderator review.");
+  if (upload.review_status === "rejected") throw new Error("This package was rejected. Upload a corrected package as a new submission.");
+  const now = new Date().toISOString();
+  const { data, error } = await admin.from("community_uploads").update({
+    review_status: "pending", rights_attested_at: now, reviewed_by: null, reviewed_at: null, review_notes: null, updated_at: now
+  }).eq("id", uploadId).select("id,title,slug,status,review_status,rights_attested_at,validation_report,discovered_files,manifest").single();
+  if (error || !data) throw new Error("Could not submit package for moderator review.");
+  return { upload: data };
+}
+
 async function handleValidate(admin: ReturnType<typeof createClient>, uploadId: string, ownerId: string) {
   const upload = await loadOwnedUpload(admin, uploadId, ownerId);
   if (upload.status === "published") throw new Error("This package has already been published.");
-  if (!["uploaded", "needs_changes", "validated"].includes(upload.status)) throw new Error("This upload is not in a state that can be validated.");
-  const { error: stateError } = await admin.from("community_uploads").update({ status: "validating", validation_report: {}, updated_at: new Date().toISOString() }).eq("id", upload.id);
+  if (!["uploaded", "needs_changes", "validated"].includes(upload.status) || upload.review_status === "pending") throw new Error("This upload is not in a state that can be validated.");
+  const { error: stateError } = await admin.from("community_uploads").update({
+    status: "validating", review_status: "not_submitted", rights_attested_at: null, reviewed_by: null, reviewed_at: null, review_notes: null,
+    validation_report: {}, updated_at: new Date().toISOString()
+  }).eq("id", upload.id);
   if (stateError) throw new Error("Could not start package validation.");
   try {
     const { bytes, hash } = await getPackageBytes(admin, upload);
@@ -318,10 +348,12 @@ async function handleValidate(admin: ReturnType<typeof createClient>, uploadId: 
     throw new Error(message);
   }
 }
-async function handlePublish(admin: ReturnType<typeof createClient>, uploadId: string, ownerId: string, attestation: unknown) {
+async function handlePublish(admin: ReturnType<typeof createClient>, uploadId: string, ownerId: string, attestation: unknown, reviewerId: string) {
   if (attestation !== true) throw new Error("Please confirm that you have the right to share this content under the selected license.");
   const upload = await loadOwnedUpload(admin, uploadId, ownerId);
-  if (upload.status !== "validated") throw new Error("Only a successfully validated upload can be published.");
+  if (upload.status !== "validated" || upload.review_status !== "pending" || !upload.rights_attested_at) {
+    throw new Error("Only validated packages submitted for moderator review can be approved for publication.");
+  }
   const { bytes, hash } = await getPackageBytes(admin, upload);
   const validatedHash = upload.validation_report?.package_sha256;
   if (!validatedHash || validatedHash !== hash || upload.sha256 !== hash) {
@@ -393,7 +425,8 @@ async function handlePublish(admin: ReturnType<typeof createClient>, uploadId: s
       if (versionError) throw new Error("Could not record version for " + LABELS[type] + ".");
     }
     const { error: uploadUpdateError } = await admin.from("community_uploads").update({
-      status: "published", repository_id: repoId, updated_at: new Date().toISOString()
+      status: "published", review_status: "approved", reviewed_by: reviewerId, reviewed_at: new Date().toISOString(),
+      review_notes: null, repository_id: repoId, updated_at: new Date().toISOString()
     }).eq("id", uploadId);
     if (uploadUpdateError) throw new Error("Repository was created but upload status update failed.");
     // The staged file is private, and is removed only after release + database publication succeeds.
@@ -414,18 +447,49 @@ Deno.serve(async (req: Request) => {
   try {
     const { user, admin } = await getContext(req);
     const body = await req.json();
-    if (!body || typeof body.upload_id !== "string" || !/^[0-9a-f-]{36}$/i.test(body.upload_id)) {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return json({ error: "A JSON object body is required." }, 400, origin);
+    }
+    if (body.action === "moderation_list") {
+      await ensureModerator(admin, user.id);
+      const uploads = await listModerationQueue(admin);
+      return json({ ok: true, uploads }, 200, origin);
+    }
+    if (typeof body.upload_id !== "string" || !/^[0-9a-f-]{36}$/i.test(body.upload_id)) {
       return json({ error: "A valid upload_id is required." }, 400, origin);
     }
     if (body.action === "validate") {
       const result = await handleValidate(admin, body.upload_id, user.id);
       return json({ ok: true, ...result }, 200, origin);
     }
-    if (body.action === "publish") {
-      const result = await handlePublish(admin, body.upload_id, user.id, body.attestation);
+    if (body.action === "submit_review") {
+      const result = await handleSubmitReview(admin, body.upload_id, user.id, body.attestation);
       return json({ ok: true, ...result }, 200, origin);
     }
-    return json({ error: "action must be validate or publish." }, 400, origin);
+    if (["approve", "request_changes", "reject"].includes(body.action)) {
+      await ensureModerator(admin, user.id);
+      const { data: upload, error: loadError } = await admin.from("community_uploads").select("*").eq("id", body.upload_id).maybeSingle();
+      if (loadError || !upload) throw new Error("Upload record was not found.");
+      if (upload.status !== "validated" || upload.review_status !== "pending" || !upload.rights_attested_at) {
+        throw new Error("This package is no longer waiting for review.");
+      }
+      if (body.action === "approve") {
+        const result = await handlePublish(admin, upload.id, upload.owner_id, true, user.id);
+        return json({ ok: true, ...result }, 200, origin);
+      }
+      const notes = typeof body.notes === "string" ? body.notes.trim().slice(0, 2000) : "";
+      if (!notes || notes.length < 5) return json({ error: "Add a review note of at least 5 characters." }, 400, origin);
+      const changing = body.action === "request_changes";
+      const now = new Date().toISOString();
+      const { data, error } = await admin.from("community_uploads").update({
+        status: changing ? "needs_changes" : "rejected",
+        review_status: changing ? "changes_requested" : "rejected",
+        reviewed_by: user.id, reviewed_at: now, review_notes: notes, updated_at: now
+      }).eq("id", upload.id).select("id,title,status,review_status,review_notes,reviewed_at").single();
+      if (error || !data) throw new Error("Could not save the moderation decision.");
+      return json({ ok: true, upload: data }, 200, origin);
+    }
+    return json({ error: "action must be validate, submit_review, moderation_list, approve, request_changes, or reject." }, 400, origin);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Request failed.";
     const status = /sign in|session|own this upload|not found/i.test(message) ? 401 : 400;
