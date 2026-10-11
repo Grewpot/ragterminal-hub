@@ -25,6 +25,35 @@ main{min-height:calc(100vh - 150px)}.hero{padding:72px 0 54px;border-bottom:1px 
 @media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.hero{padding-top:55px}}
 @media(max-width:650px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:8px}.brand{font-size:13px;gap:5px}.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:10px}.links a{font-size:11px;padding:20px 0}.nav-actions{display:flex;gap:5px}.auth-btn{min-height:34px;padding:0 8px;font-size:10px;letter-spacing:0}.hero{padding:45px 0 36px}.hero h1{font-size:clamp(39px,11vw,54px);letter-spacing:-2.5px}.grid{grid-template-columns:1fr;margin:28px 0 48px}.card{min-height:0;padding:21px}.card h2{margin-top:15px}.card .button{margin-top:24px}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
 @media(max-width:480px){.links{gap:7px}.links a{font-size:10px}.brand{font-size:12px;gap:3px}.auth-btn{min-height:32px;padding:0 6px;font-size:9px}}
+
+/* Shared page frame: consistent gutters and navigation across Discover, Community, and Download */
+:root{--hub-page-max:1280px;--hub-page-gutter:24px}
+.wrap{width:min(var(--hub-page-max),100%);max-width:var(--hub-page-max);margin-left:auto;margin-right:auto;padding-left:var(--hub-page-gutter);padding-right:var(--hub-page-gutter);box-sizing:border-box}
+.top{height:70px;background:#ffffffed;border-bottom:1px solid #e2e2e2}
+.nav{height:100%}
+.footer{border-top:1px solid #e2e2e2}
+@media(max-width:680px){
+  :root{--hub-page-gutter:16px}
+  .wrap{padding-left:var(--hub-page-gutter);padding-right:var(--hub-page-gutter)}
+  .top{height:62px}
+  .nav{gap:8px}
+  .brand{font-size:13px;gap:5px}
+  .brand-icon{width:24px;height:24px}
+  .brand small{display:none}
+  .links{gap:10px}
+  .links a{font-size:11px;padding:20px 0}
+  .nav-actions{gap:5px}
+  .auth-btn{min-height:34px;padding:0 8px;font-size:10px;letter-spacing:0}
+  .right.nav-actions .btn{min-height:34px;padding:0 8px;font-size:10px;letter-spacing:0}
+}
+@media(max-width:480px){
+  .brand{font-size:12px;gap:3px}
+  .links{gap:7px}
+  .links a{font-size:10px}
+  .auth-btn{min-height:32px;padding:0 6px;font-size:9px}
+  .right.nav-actions .btn{min-height:32px;padding:0 6px;font-size:9px}
+}
+
 </style>
 </head>
 <body>
