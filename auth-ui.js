@@ -390,7 +390,6 @@ uploadField("pack-publish-submit").addEventListener("click", async () => {
     link.href = result.package_url;
     link.textContent = "Download published RAGTerminal.pack";
     link.style.display = "inline-block";
-    uploadButton.textContent = currentProfile?.username ? "@" + currentProfile.username : "My profile";
     if (typeof window.ragHubReloadCatalog === "function") await window.ragHubReloadCatalog();
     activeUploadId = null;
   } catch (error) {
