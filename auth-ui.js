@@ -46,6 +46,15 @@ function field(id, visible, display = "grid") {
 function normalizeUsername(value) {
   return value.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "").slice(0, 32);
 }
+
+// Confirmation links should return to the hosted Hub, not an offline local dev server.
+function signupRedirectUrl() {
+  const host = window.location.hostname.toLowerCase();
+  if (host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || host === "[::1]") {
+    return "https://ragterminal-hub.vercel.app/";
+  }
+  return new URL("/", window.location.origin).toString();
+}
 function showAuthForm() {
   clearAlert();
   if (currentUser) {
@@ -149,7 +158,7 @@ async function handleSubmit(event) {
       if (!displayName || displayName.length > 80) throw new Error("Please enter a display name of up to 80 characters.");
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: window.location.origin, data: { username, display_name: displayName } }
+        options: { emailRedirectTo: signupRedirectUrl(), data: { username, display_name: displayName } }
       });
       if (error) throw error;
       if (data.session && data.user) {
