@@ -131,6 +131,56 @@ function render(){
     root.append(card);
   });
 }
+async function refreshPublicMetrics(){
+  const ids=assets.filter(a=>a.source==="supabase").map(a=>a.id);
+  if(!ids.length){
+    metricsAvailable=false;metricsLoading=false;
+    $("#download-stat").textContent="—";
+    return;
+  }
+  metricsLoading=true;metricsAvailable=false;render();
+  try{
+    const values=new Map();
+    for(let start=0;start<ids.length;start+=100){
+      const artifact_ids=ids.slice(start,start+100);
+      const response=await fetch(SUPABASE_URL+"/functions/v1/community-metrics",{
+        method:"POST",
+        headers:{
+          apikey:SUPABASE_KEY,
+          Authorization:"Bearer "+SUPABASE_KEY,
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({artifact_ids})
+      });
+      if(!response.ok)throw new Error("Metrics HTTP "+response.status);
+      const result=await response.json();
+      if(!result||result.ok!==true||!Array.isArray(result.items))throw new Error("Metrics response was invalid.");
+      for(const item of result.items){
+        if(typeof item.artifact_id!=="string")continue;
+        values.set(item.artifact_id,{
+          stars:Math.max(0,Number(item.stars_count)||0),
+          downloads:Math.max(0,Number(item.downloads_count)||0)
+        });
+      }
+    }
+    assets=assets.map(a=>{
+      if(a.source!=="supabase")return a;
+      const value=values.get(a.id);
+      if(!value)throw new Error("Metrics missing for a currently published artifact.");
+      return {...a,stars:value.stars,downloads:value.downloads};
+    });
+    metricsAvailable=true;
+    $("#download-stat").textContent=fmt(assets.filter(a=>a.source==="supabase").reduce((total,a)=>total+a.downloads,0));
+  }catch(error){
+    metricsAvailable=false;
+    assets=assets.map(a=>a.source==="supabase"?{...a,stars:null,downloads:null}:a);
+    $("#download-stat").textContent="—";
+    console.warn("Community engagement metrics are unavailable",error);
+  }finally{
+    metricsLoading=false;
+    render();
+  }
+}
 async function loadCatalog(){
   catalogLoading=true;catalogLoadError=false;catalogErrorMessage="";previewDemos=false;
   try{
