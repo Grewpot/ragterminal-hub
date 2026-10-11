@@ -1,6 +1,6 @@
 # RAGTerminal Hub
 
-A Hugging Face–inspired community catalog for RAGTerminal assets: Knowledge, Flows, Blocks, Scripts, and Plays.
+RAGTerminal Hub introduces the macOS workbench, provides a community catalog for reusable assets, and documents the current download path.
 
 ## Live services
 
@@ -18,7 +18,7 @@ Push to the main branch to trigger a Vercel deployment. The current frontend is 
 - Public catalog reads from Supabase's REST Data API using the publishable key.
 - When there are no published records, clearly labeled demo assets are shown.
 - Published package cards include a direct download link for the public release object.
-- Stars are currently local to the browser; durable stars, download analytics and comments are not yet wired to the UI.
+- Signed-in users can persist their own stars, and signed-in downloads are recorded; public aggregate star and download counts power the popularity sorts.
 
 ## Authentication and profiles
 
