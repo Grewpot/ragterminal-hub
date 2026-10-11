@@ -232,7 +232,7 @@ function resetUploadPreview() {
   uploadField("pack-publish-submit").style.display = "block";
   uploadField("pack-publish-submit").disabled = true;
   uploadField("pack-publish-submit").style.opacity = ".55";
-  uploadField("pack-publish-submit").textContent = "Publish package publicly";
+  uploadField("pack-publish-submit").textContent = "Submit for moderator review";
 }
 function slugFromTitle(value) {
   return value.toLowerCase().trim().replace(/[^a-z0-9._-]+/g, "-").replace(/^[^a-z0-9]+/, "").slice(0, 80);
@@ -349,7 +349,7 @@ uploadField("pack-upload-form").addEventListener("submit", async (event) => {
     const result = await invokePackLifecycle({ action: "validate", upload_id: row.id });
     if (!result?.ok || !result.upload) throw new Error("Validation service returned an incomplete response.");
     showValidationPreview(result);
-    uploadAlert("Validation passed. Review the file list and license attestation before publication.");
+    uploadAlert("Validation passed. Review the files and license attestation, then submit for moderator approval. Nothing is public yet.");
   } catch (error) {
     if (storagePath && !registeredUploadId) {
       await supabase.storage.from("community-staging").remove([storagePath]);
@@ -376,21 +376,18 @@ uploadField("pack-publish-submit").addEventListener("click", async () => {
   }
   const button = uploadField("pack-publish-submit");
   button.disabled = true;
-  button.textContent = "Publishing…";
+  button.textContent = "Submitting for review…";
   try {
-    const result = await invokePackLifecycle({ action: "publish", upload_id: activeUploadId, attestation: true });
-    if (!result?.ok || !result.repository) throw new Error("Publication service returned an incomplete response.");
-    button.textContent = "Published successfully";
+    const result = await invokePackLifecycle({ action: "submit_review", upload_id: activeUploadId, attestation: true });
+    if (!result?.ok || !result.upload) throw new Error("Review submission service returned an incomplete response.");
+    button.textContent = "Submitted for review";
     button.style.opacity = "1";
     uploadField("pack-attestation-row").style.display = "none";
-    uploadField("pack-validation-badge").textContent = "PUBLISHED";
-    uploadField("pack-preview-title").textContent = result.repository.title;
-    uploadAlert("Package published successfully. Community categories: " + (result.published_categories || []).join(", "));
-    const link = uploadField("pack-public-link");
-    link.href = result.package_url;
-    link.textContent = "Download published RAGTerminal.pack";
-    link.style.display = "inline-block";
-    if (typeof window.ragHubReloadCatalog === "function") await window.ragHubReloadCatalog();
+    uploadField("pack-validation-badge").textContent = "IN REVIEW";
+    uploadField("pack-validation-badge").style.background = "#fff2dc";
+    uploadField("pack-validation-badge").style.color = "#9d6819";
+    uploadField("pack-preview-title").textContent = result.upload.title;
+    uploadAlert("Your package has been submitted for moderator review. It remains private until approval.");
     activeUploadId = null;
   } catch (error) {
     uploadAlert(error.message || "Publication failed.", true);
