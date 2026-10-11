@@ -11,7 +11,7 @@
 .top{position:sticky;top:0;z-index:10;height:70px;background:#ffffffed;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
 .nav{height:100%;display:flex;align-items:center;gap:44px}.brand{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:18px;font-weight:800;letter-spacing:-.65px;white-space:nowrap}.brand-icon{width:30px;height:30px;display:block;object-fit:contain;flex:none;background:#111;padding:1px}.brand small{font-size:11px;font-weight:500;letter-spacing:0;color:#777;margin-left:4px}
 .links{display:flex;align-items:center;gap:30px;margin-left:auto;height:100%}.links a{text-decoration:none;color:#414141;font-size:14px;padding:23px 0 21px;border-bottom:2px solid transparent}.links a:hover,.links a[aria-current=page]{color:#111;border-bottom-color:#111}
-.nav-cta,.button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 17px;border:1px solid #111;background:#111;color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.2px}.button.secondary{background:#fff;color:#111;border-color:#d5d5d5}.button:hover{background:#333;color:#fff}.button.secondary:hover{background:#f5f5f5;color:#111}
+.nav-cta,.button,.auth-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 17px;border:1px solid #111;background:#111;color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.2px}.button.secondary{background:#fff;color:#111;border-color:#d5d5d5}.button:hover,.auth-btn:hover{background:#333;color:#fff}.button.secondary:hover,.auth-btn.secondary:hover{background:#f5f5f5;color:#111}
 .eyebrow{text-transform:uppercase;font-size:10px;letter-spacing:1.7px;font-weight:800;color:#555}
 main{min-height:calc(100vh - 150px)}.hero{padding:72px 0 54px;border-bottom:1px solid var(--line);max-width:850px}.hero h1{font-size:clamp(42px,5.4vw,66px);line-height:1;letter-spacing:-3.3px;margin:17px 0 19px;font-weight:720}.hero p{max-width:720px;font-size:15px;color:#5e5e5e;line-height:1.85;margin:0}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin:42px 0 72px}
@@ -22,14 +22,15 @@ main{min-height:calc(100vh - 150px)}.hero{padding:72px 0 54px;border-bottom:1px 
 .note{border-top:1px solid var(--line);padding:22px 0 54px;color:#666;font-size:12px;line-height:1.8;max-width:900px}.note strong{color:#111}
 .footer{border-top:1px solid var(--line);padding:21px 0;color:#777;font-size:11px}.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px}.footer-links{display:flex;gap:22px}.footer a{text-decoration:none}.footer a:hover{color:#111}
 @media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.hero{padding-top:55px}}
-@media(max-width:650px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:14px}.brand{font-size:15px;gap:5px}.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:13px}.links a{font-size:12px;padding:20px 0}.nav-cta{display:none}.hero{padding:45px 0 36px}.hero h1{font-size:clamp(39px,11vw,54px);letter-spacing:-2.5px}.grid{grid-template-columns:1fr;margin:28px 0 48px}.card{min-height:0;padding:21px}.card h2{margin-top:15px}.card .button{margin-top:24px}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
+@media(max-width:650px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:8px}.brand{font-size:13px;gap:5px}.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:10px}.links a{font-size:11px;padding:20px 0}.nav-actions{display:flex;gap:5px}.auth-btn{min-height:34px;padding:0 8px;font-size:10px;letter-spacing:0}.hero{padding:45px 0 36px}.hero h1{font-size:clamp(39px,11vw,54px);letter-spacing:-2.5px}.grid{grid-template-columns:1fr;margin:28px 0 48px}.card{min-height:0;padding:21px}.card h2{margin-top:15px}.card .button{margin-top:24px}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
+@media(max-width:480px){.links{gap:7px}.links a{font-size:10px}.brand{font-size:12px;gap:3px}.auth-btn{min-height:32px;padding:0 6px;font-size:9px}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap nav">
 <a class="brand" href="/" aria-label="RAGTerminal Discover"><img class="brand-icon" src="/assets/brain.head.profile.svg" alt=""><span>RAGTerminal<small> workbench</small></span></a>
 <nav class="links" aria-label="Primary"><a href="/">Discover</a><a href="/community.html">Community</a><a href="/download.html" aria-current="page">Download</a></nav>
-<a class="nav-cta" href="/community.html">Browse Community ↗</a>
+<div class="nav-actions" aria-label="Account actions"><a class="auth-btn" href="/community.html?auth=signup">Sign Up</a><a class="auth-btn secondary" href="/community.html?auth=signin">Sign In</a></div>
 </div></header>
 <main class="wrap">
 <section class="hero">
