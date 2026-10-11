@@ -70,7 +70,7 @@ where lower(email) = lower('moderator@example.com')
 on conflict (user_id) do update set role = excluded.role;
 ```
 
-If the query inserts zero rows, confirm the user exists and has completed registration. Never add a public self-service moderator enrollment flow or put server credentials in browser code. The review queue appears only for allowlisted users. Rejection and change requests require a moderator note; approval is the only path that makes the package public.
+If the query inserts zero rows, confirm the user exists and has completed registration. After provisioning or changing a moderator role, sign out and sign in again: moderation endpoints require a JWT issued after the grant. Never add a public self-service moderator enrollment flow or put server credentials in browser code. The review queue appears only for allowlisted users. Rejection and change requests require a moderator note; approval is the only path that makes the package public.
 
 ## Database and storage
 
