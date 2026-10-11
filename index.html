@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
+<link rel="icon" type="image/png" href="/assets/ragterminal-app-icon.png">
 <title>RAGTerminal — Build, organize and reuse RAG workflows</title>
 <meta name="description" content="RAGTerminal is a macOS workbench for organizing knowledge, composing RAG flows, reusing blocks, automating scripts and packaging repeatable plays.">
 <style>
@@ -16,7 +17,7 @@ a{color:inherit}button,input{font:inherit}
 .top{position:sticky;top:0;z-index:10;height:70px;background:#ffffffed;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
 .nav{height:100%;display:flex;align-items:center;gap:44px}
 .brand{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:18px;font-weight:800;letter-spacing:-.65px;white-space:nowrap}
-.brand-mark{font-size:30px;line-height:1;font-weight:400}
+.brand-icon{width:30px;height:30px;display:block;object-fit:contain;flex:none}
 .brand small{font-size:11px;font-weight:500;letter-spacing:0;color:#777;margin-left:4px}
 .links{display:flex;align-items:center;gap:30px;margin-left:auto;height:100%}
 .links a{text-decoration:none;color:#414141;font-size:14px;padding:23px 0 21px;border-bottom:2px solid transparent}
@@ -96,12 +97,12 @@ a{color:inherit}button,input{font:inherit}
 .footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px}
 .footer-links{display:flex;gap:22px}.footer a{text-decoration:none}.footer a:hover{color:#111}
 @media(max-width:900px){.hero{grid-template-columns:1fr;gap:36px;padding:58px 0}.preview{max-width:650px}.section{padding:60px 0}.section-head{align-items:start;flex-direction:column;gap:12px}.benefits{grid-template-columns:1fr;gap:25px}.download-band{padding:32px}}
-@media(max-width:680px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:15px}.brand{font-size:15px;gap:5px}.brand-mark{font-size:24px}.brand small{display:none}.links{gap:13px}.links a{font-size:12px;padding:20px 0}.nav-cta{display:none}.hero{padding:45px 0 43px}.hero h1{font-size:clamp(39px,12vw,57px);letter-spacing:-2.5px}.lead{font-size:14px}.preview-body{grid-template-columns:98px 1fr;min-height:288px}.preview-side{padding:12px 5px}.side-item{font-size:9px;padding:8px 5px;gap:5px}.canvas{padding:15px 10px}.node-row{gap:5px}.node{padding:9px}.node strong{font-size:10px}.node small{font-size:9px}.module-strip{grid-template-columns:repeat(2,1fr)}.module{border-bottom:1px solid var(--line);padding:14px 12px}.module:nth-child(odd){border-left:1px solid var(--line)}.module:last-child{grid-column:1/-1}.capabilities,.use-grid{grid-template-columns:1fr}.cap,.use-card{min-height:0;padding:20px}.capabilities,.use-grid,.workflow{border-top:0}.workflow{grid-template-columns:1fr}.step{padding:20px}.step h3{margin-top:12px}.section{padding:48px 0}.section-head h2{font-size:32px}.benefits{padding:48px 0}.download-band{margin-bottom:48px;padding:25px 20px;align-items:flex-start;flex-direction:column}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
+@media(max-width:680px){.wrap{padding:0 16px}.top{height:62px}.nav{gap:15px}.brand{font-size:15px;gap:5px}.brand-icon{width:24px;height:24px}.brand small{display:none}.links{gap:13px}.links a{font-size:12px;padding:20px 0}.nav-cta{display:none}.hero{padding:45px 0 43px}.hero h1{font-size:clamp(39px,12vw,57px);letter-spacing:-2.5px}.lead{font-size:14px}.preview-body{grid-template-columns:98px 1fr;min-height:288px}.preview-side{padding:12px 5px}.side-item{font-size:9px;padding:8px 5px;gap:5px}.canvas{padding:15px 10px}.node-row{gap:5px}.node{padding:9px}.node strong{font-size:10px}.node small{font-size:9px}.module-strip{grid-template-columns:repeat(2,1fr)}.module{border-bottom:1px solid var(--line);padding:14px 12px}.module:nth-child(odd){border-left:1px solid var(--line)}.module:last-child{grid-column:1/-1}.capabilities,.use-grid{grid-template-columns:1fr}.cap,.use-card{min-height:0;padding:20px}.capabilities,.use-grid,.workflow{border-top:0}.workflow{grid-template-columns:1fr}.step{padding:20px}.step h3{margin-top:12px}.section{padding:48px 0}.section-head h2{font-size:32px}.benefits{padding:48px 0}.download-band{margin-bottom:48px;padding:25px 20px;align-items:flex-start;flex-direction:column}.footer-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:16px}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap nav">
-<a class="brand" href="/" aria-label="RAGTerminal Discover"><span class="brand-mark">⬡</span><span>RAGTerminal<small> workbench</small></span></a>
+<a class="brand" href="/" aria-label="RAGTerminal Discover"><img class="brand-icon" src="/assets/ragterminal-app-icon.png" alt=""><span>RAGTerminal<small> workbench</small></span></a>
 <nav class="links" aria-label="Primary"><a href="/" aria-current="page">Discover</a><a href="/community.html">Community</a><a href="/download.html">Download</a></nav>
 <a class="nav-cta" href="/download.html">Get RAGTerminal <span aria-hidden="true">↗</span></a>
 </div></header>
