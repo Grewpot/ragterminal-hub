@@ -83,8 +83,6 @@ function loadDemoCatalog(){
   previewDemos=true;catalogLoadError=false;catalogErrorMessage="";
   assets=demos.map((a,i)=>({...a,id:"demo-"+i,updated_at:a.updated_at,source:"demo"}));
   cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value=sort;
-  $("#status").textContent="PREVIEW DATA";
-  $("#status").style.background="#fff2dc";$("#status").style.color="#9d6819";
   render();
 }
 async function refreshStarredState(){
@@ -259,12 +257,10 @@ async function loadCatalog(){
       license:a.license||"License unspecified",slug:a.slug,version:a.latest_version||a.repository?.latest_version,
       package_path:a.repository?.package_storage_path||null,source:"supabase"
     }));
-    $("#status").textContent="LIVE CATALOG";$("#status").style.background="#e5f8ef";$("#status").style.color="#167653";
     if(truncated)console.warn("Catalog is capped at 10,000 assets in one browser session. Larger catalogs should add server filters.");
     sort="recent";$("#sort").value="recent";side="all";
   }catch(error){
     assets=[];catalogLoadError=true;catalogErrorMessage=error.message||"Catalog request failed.";
-    $("#status").textContent="CATALOG UNAVAILABLE";$("#status").style.background="#fff1f0";$("#status").style.color="#b42318";
     console.warn("Could not load public catalog",error);
   }finally{
     catalogLoading=false;render();
