@@ -145,9 +145,9 @@ window.ragHubOpenAccount = (mode = "signin") => {
 };
 window.ragHubCommunityAPI = {
   async loadStars(artifactIds) {
-    const { data: auth, error: authError } = await supabase.auth.getUser();
+    const { data: auth, error: authError } = await supabase.auth.getSession();
     if (authError) throw authError;
-    if (!auth.user || !Array.isArray(artifactIds) || artifactIds.length === 0) return [];
+    if (!auth.session?.user || !Array.isArray(artifactIds) || artifactIds.length === 0) return [];
     const ids = [...new Set(artifactIds.filter(id => /^[0-9a-f-]{36}$/i.test(id)))];
     const starredIds = [];
     for (let start = 0; start < ids.length; start += 100) {
@@ -160,30 +160,30 @@ window.ragHubCommunityAPI = {
     return starredIds;
   },
   async toggleStar(artifactId, wasStarred) {
-    const { data: auth, error: authError } = await supabase.auth.getUser();
+    const { data: auth, error: authError } = await supabase.auth.getSession();
     if (authError) throw authError;
-    if (!auth.user) return { requiresSignIn: true };
+    if (!auth.session?.user) return { requiresSignIn: true };
     if (!/^[0-9a-f-]{36}$/i.test(artifactId)) throw new Error("This sample card is not a published database asset.");
     if (wasStarred) {
       const { error } = await supabase.from("community_stars")
-        .delete().eq("artifact_id", artifactId).eq("user_id", auth.user.id);
+        .delete().eq("artifact_id", artifactId).eq("user_id", auth.session.user.id);
       if (error) throw error;
       return { starred: false };
     }
     const { error } = await supabase.from("community_stars").insert({
       artifact_id: artifactId,
-      user_id: auth.user.id
+      user_id: auth.session.user.id
     });
     if (error && error.code !== "23505") throw error;
     return { starred: true };
   },
   async recordDownload(artifactId) {
-    const { data: auth, error: authError } = await supabase.auth.getUser();
+    const { data: auth, error: authError } = await supabase.auth.getSession();
     if (authError) throw authError;
-    if (!auth.user) return { recorded: false };
+    if (!auth.session?.user) return { recorded: false };
     const { error } = await supabase.from("community_download_events").insert({
       artifact_id: artifactId,
-      user_id: auth.user.id
+      user_id: auth.session.user.id
     });
     if (error) throw error;
     return { recorded: true };
