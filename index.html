@@ -109,6 +109,7 @@ function render(){
         const result=await api.toggleStar(a.id,starred.has(a.id));
         if(result?.requiresSignIn){notify("Sign in to save community stars.");window.ragHubOpenAccount?.("signin");return}
         if(result?.starred)starred.add(a.id);else starred.delete(a.id);
+        await refreshPublicMetrics();
         render();
       }catch(error){notify(error.message||"Could not save this star. Please retry.")}
       finally{star.disabled=false}
@@ -216,7 +217,9 @@ async function loadCatalog(){
     $("#catalog-mode").textContent="Supabase catalog unavailable";
     console.warn("Could not load public catalog",error);
   }finally{
-    catalogLoading=false;render();await refreshStarredState();
+    catalogLoading=false;render();
+    await refreshPublicMetrics();
+    await refreshStarredState();
   }
 }
 window.ragHubReloadCatalog = loadCatalog;
