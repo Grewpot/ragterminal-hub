@@ -94,6 +94,7 @@ After the current policy hardening, the Security Advisor still reports **Leaked 
 - supabase/migrations/202610110001_community_catalog.sql
 - supabase/migrations/202610110002_secure_upload_pipeline.sql
 - supabase/migrations/202610110003_community_moderation_review.sql
+- supabase/migrations/202610110004_tighten_anonymous_community_privileges.sql
 - supabase/functions/pack-lifecycle/index.ts
 - supabase/functions/pack-lifecycle/deno.json
 
