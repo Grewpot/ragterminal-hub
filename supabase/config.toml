@@ -1,0 +1,2 @@
+[functions.pack-lifecycle]
+verify_jwt = true
