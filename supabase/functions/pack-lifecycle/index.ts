@@ -288,10 +288,28 @@ async function getPackageBytes(admin: ReturnType<typeof createClient>, upload: R
   if (upload.sha256 && upload.sha256 !== hash) throw new Error("Stored package checksum does not match the validated checksum.");
   return { bytes, hash };
 }
-async function ensureModerator(admin: ReturnType<typeof createClient>, userId: string) {
-  const { data, error } = await admin.from("community_moderators").select("role").eq("user_id", userId).maybeSingle();
+function jwtIssuedAtFromRequest(req: Request): number | null {
+  const header = req.headers.get("Authorization") || "";
+  if (!header.startsWith("Bearer ")) return null;
+  try {
+    const parts = header.slice(7).split(".");
+    if (parts.length !== 3) return null;
+    const normalized = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")));
+    return typeof payload.iat === "number" ? payload.iat * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+async function ensureModerator(admin: ReturnType<typeof createClient>, userId: string, tokenIssuedAt: number | null) {
+  const { data, error } = await admin.from("community_moderators").select("role,created_at").eq("user_id", userId).maybeSingle();
   if (error) throw new Error("Could not verify moderator access.");
   if (!data || !["moderator", "admin"].includes(data.role)) throw new Error("Moderator access is required.");
+  // A bearer token issued before the moderator grant should not inherit new privileges.
+  // Requiring a fresh sign-in after provisioning also limits exposure from older shared links.
+  if (tokenIssuedAt === null || Date.parse(data.created_at) > tokenIssuedAt) {
+    throw new Error("Moderator access was recently granted or changed. Please sign out and sign in again.");
+  }
   return data.role as string;
 }
 async function listModerationQueue(admin: ReturnType<typeof createClient>) {
@@ -451,7 +469,7 @@ Deno.serve(async (req: Request) => {
       return json({ error: "A JSON object body is required." }, 400, origin);
     }
     if (body.action === "moderation_list") {
-      await ensureModerator(admin, user.id);
+      await ensureModerator(admin, user.id, jwtIssuedAtFromRequest(req));
       const uploads = await listModerationQueue(admin);
       return json({ ok: true, uploads }, 200, origin);
     }
@@ -467,7 +485,7 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, ...result }, 200, origin);
     }
     if (["approve", "request_changes", "reject"].includes(body.action)) {
-      await ensureModerator(admin, user.id);
+      await ensureModerator(admin, user.id, jwtIssuedAtFromRequest(req));
       const { data: upload, error: loadError } = await admin.from("community_uploads").select("*").eq("id", body.upload_id).maybeSingle();
       if (loadError || !upload) throw new Error("Upload record was not found.");
       if (upload.status !== "validated" || upload.review_status !== "pending" || !upload.rights_attested_at) {
