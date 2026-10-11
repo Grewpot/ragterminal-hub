@@ -95,8 +95,11 @@ After the current policy hardening, the Security Advisor still reports **Leaked 
 - supabase/migrations/202610110002_secure_upload_pipeline.sql
 - supabase/migrations/202610110003_community_moderation_review.sql
 - supabase/migrations/202610110004_tighten_anonymous_community_privileges.sql
+- supabase/migrations/202610110005_community_public_metrics_rpc.sql
 - supabase/functions/pack-lifecycle/index.ts
 - supabase/functions/pack-lifecycle/deno.json
+- supabase/functions/community-metrics/index.ts
+- supabase/functions/community-metrics/deno.json
 
 These migrations have already been applied to the connected Supabase project. Reconcile remote migration history before running supabase db push against an existing database.
 
@@ -104,7 +107,7 @@ These migrations have already been applied to the connected Supabase project. Re
 ## Current hardening changes (2026-10-11)
 
 - Browser catalog requests pages of 100 records (up to a 10,000-item safety cap), uses stable ordering, and shows explicit loading/empty/error states. Sample cards are only loaded when a user explicitly selects **Preview example cards**.
-- Persistent stars use the authenticated user's own rows in `community_stars`; signed-in downloads insert their own row into `community_download_events`. No fake public star/download totals are shown. Trending and popularity sorts remain disabled for live records until a security-reviewed aggregate metrics API is available.
+- Persistent stars use the authenticated user's own rows in `community_stars`; signed-in downloads insert their own row into `community_download_events`. Public engagement counts come from the `community-metrics` Edge Function, which returns aggregates only for published public assets; its underlying RPC is executable by `service_role` only. Trending and popularity sorts use these real counts.
 - Anonymous database role has read-only access to published catalog tables and no access to upload rows or write privileges for repository/artifact/version tables. Existing public catalog reads, authenticated upload registration, moderator review and approved public downloads remain supported.
 - The Hub browser clients and `pack-lifecycle` Edge Function are pinned to Supabase JS `2.117.3`.
 - Native workspace-sharing requests page through existing local Knowledge, Flow, Block, Script and Play records rather than silently using only the first 500 records. Provider API keys are migrated from legacy preferences into macOS Keychain; a migration/persistence warning is shown if Keychain access fails.
@@ -114,7 +117,7 @@ These migrations have already been applied to the connected Supabase project. Re
 
 - Takedown/withdrawal workflow for already-published packages.
 - Content/license review beyond uploader attestation and automated checks.
-- Comments and public aggregate engagement metrics (stars/download counts and popularity rankings). Signed-in users can save persistent stars, and signed-in download events are recorded; the public UI intentionally disables popularity rankings until a safe aggregate endpoint is provided.
+- Comments and contributor-facing activity dashboards. Persistent stars and signed-in download events are recorded, while public aggregate star/download counts are supplied by the aggregate-only metrics endpoint.
 - Per-asset signed downloads (current download is the complete published .pack).
 - Full malware analysis, semantic validation of every domain schema, and safe execution sandboxing.
 - Knowledge import for the consumer workspace: chunking, embeddings, vector indexing and reindex controls.
