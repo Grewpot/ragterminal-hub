@@ -139,7 +139,8 @@ async function refreshPublicMetrics(){
     $("#download-stat").textContent="—";
     return;
   }
-  metricsLoading=true;metricsAvailable=false;render();
+  metricsLoading=true;
+  if(!metricsAvailable)render();
   try{
     const values=new Map();
     for(let start=0;start<ids.length;start+=100){
@@ -184,6 +185,7 @@ async function refreshPublicMetrics(){
 }
 async function loadCatalog(){
   catalogLoading=true;catalogLoadError=false;catalogErrorMessage="";previewDemos=false;
+  metricsAvailable=false;metricsLoading=false;$("#download-stat").textContent="—";
   try{
     const pageSize=100,maximumAssets=10000;let offset=0;const data=[];
     while(data.length<maximumAssets){
