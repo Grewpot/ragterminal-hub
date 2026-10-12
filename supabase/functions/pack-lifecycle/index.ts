@@ -319,6 +319,53 @@ async function listModerationQueue(admin: ReturnType<typeof createClient>) {
   if (error) throw new Error("Could not load the moderation queue.");
   return data || [];
 }
+
+async function handleDeleteArtifact(admin: ReturnType<typeof createClient>, artifactId: string) {
+  const { data: artifact, error: artifactError } = await admin.from("community_artifacts")
+    .select("id,title,repository_id").eq("id", artifactId).maybeSingle();
+  if (artifactError || !artifact) throw new Error("Published asset was not found.");
+
+  const { data: repository, error: repositoryError } = await admin.from("community_repositories")
+    .select("id,package_storage_path").eq("id", artifact.repository_id).maybeSingle();
+  if (repositoryError || !repository) throw new Error("The asset's repository could not be loaded.");
+
+  const { data: deleted, error: deleteError } = await admin.from("community_artifacts")
+    .delete().eq("id", artifactId).select("id").maybeSingle();
+  if (deleteError || !deleted) throw new Error("Could not delete the published asset.");
+
+  const { data: siblings, error: siblingError } = await admin.from("community_artifacts")
+    .select("id").eq("repository_id", artifact.repository_id).limit(1);
+  if (siblingError) {
+    return { artifact_id: artifactId, title: artifact.title, repository_deleted: false,
+      warning: "The asset was deleted, but repository cleanup could not be checked. Its package file was left intact." };
+  }
+  if ((siblings || []).length > 0) {
+    return { artifact_id: artifactId, title: artifact.title, repository_deleted: false };
+  }
+
+  const { error: repositoryDeleteError } = await admin.from("community_repositories")
+    .delete().eq("id", artifact.repository_id);
+  if (repositoryDeleteError) {
+    return { artifact_id: artifactId, title: artifact.title, repository_deleted: false,
+      warning: "The asset was deleted, but its now-empty repository metadata could not be removed." };
+  }
+
+  const storagePath = repository.package_storage_path;
+  if (typeof storagePath === "string" && storagePath.length) {
+    const safeReleasePath = /^[0-9a-f-]{36}\/[A-Za-z0-9][A-Za-z0-9.+_-]{0,63}\/RAGTerminal\.pack$/i.test(storagePath);
+    if (!safeReleasePath) {
+      return { artifact_id: artifactId, title: artifact.title, repository_deleted: true,
+        warning: "The asset was deleted, but the package file was kept because its storage path did not pass validation." };
+    }
+    const { error: storageError } = await admin.storage.from("community-releases").remove([storagePath]);
+    if (storageError) {
+      return { artifact_id: artifactId, title: artifact.title, repository_deleted: true,
+        warning: "The asset and repository were deleted, but the public package file could not be removed." };
+    }
+  }
+  return { artifact_id: artifactId, title: artifact.title, repository_deleted: true };
+}
+
 async function handleSubmitReview(admin: ReturnType<typeof createClient>, uploadId: string, ownerId: string, attestation: unknown) {
   if (attestation !== true) throw new Error("Please confirm that you have the right to share this content under the selected license.");
   const upload = await loadOwnedUpload(admin, uploadId, ownerId);
@@ -473,6 +520,19 @@ Deno.serve(async (req: Request) => {
       const uploads = await listModerationQueue(admin);
       return json({ ok: true, uploads }, 200, origin);
     }
+    if (body.action === "admin_check") {
+      const role = await ensureModerator(admin, user.id, jwtIssuedAtFromRequest(req));
+      return json({ ok: true, is_admin: role === "admin" }, 200, origin);
+    }
+    if (body.action === "delete_artifact") {
+      if (typeof body.artifact_id !== "string" || !/^[0-9a-f-]{36}$/i.test(body.artifact_id)) {
+        return json({ error: "A valid artifact_id is required." }, 400, origin);
+      }
+      const role = await ensureModerator(admin, user.id, jwtIssuedAtFromRequest(req));
+      if (role !== "admin") throw new Error("Admin access is required to delete assets.");
+      const result = await handleDeleteArtifact(admin, body.artifact_id);
+      return json({ ok: true, ...result }, 200, origin);
+    }
     if (typeof body.upload_id !== "string" || !/^[0-9a-f-]{36}$/i.test(body.upload_id)) {
       return json({ error: "A valid upload_id is required." }, 400, origin);
     }
@@ -507,7 +567,7 @@ Deno.serve(async (req: Request) => {
       if (error || !data) throw new Error("Could not save the moderation decision.");
       return json({ ok: true, upload: data }, 200, origin);
     }
-    return json({ error: "action must be validate, submit_review, moderation_list, approve, request_changes, or reject." }, 400, origin);
+    return json({ error: "action must be validate, submit_review, moderation_list, admin_check, delete_artifact, approve, request_changes, or reject." }, 400, origin);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Request failed.";
     const status = /sign in|session|own this upload|not found/i.test(message) ? 401 : 400;
