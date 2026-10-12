@@ -1,0 +1,51 @@
+/* Shared top bar, page transitions and signed-in state for Discover, Community and Download.
+   Loaded last on every page so the header is pixel-identical everywhere. */
+
+/* Smooth cross-fade between pages (Chrome/Edge/Safari); the header stays in place. */
+@media (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
+::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:.2s;animation-timing-function:ease}
+
+html{background:#fff}
+/* Community was missing this, which is why its text looked darker and bolder than the other pages. */
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+.top.top{position:sticky;top:0;z-index:10;height:70px;background:#ffffffed;border-bottom:1px solid #e2e2e2;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);view-transition-name:site-header}
+.top.top .nav{height:100%;display:flex;align-items:center;gap:44px}
+.top.top .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#111;font-size:18px;font-weight:800;letter-spacing:-.65px;line-height:1.2;white-space:nowrap}
+.top.top .brand-icon{width:30px;height:30px;display:block;object-fit:contain;flex:none;background:#111;padding:1px}
+.top.top .brand small{font-size:11px;font-weight:500;letter-spacing:0;color:#777;margin-left:4px}
+.top.top .links{display:flex;align-items:center;gap:30px;margin-left:auto;height:100%;color:#414141;font-size:14px;font-weight:400}
+.top.top .links a{display:block;padding:23px 0 21px;border-bottom:2px solid transparent;color:#414141;font-size:14px;font-weight:400;line-height:22px;text-decoration:none;transition:border-color .15s ease}
+.top.top .links a:hover,.top.top .links a[aria-current=page]{color:#414141;border-bottom-color:#111}
+.top.top .nav-actions{display:flex;align-items:center;gap:8px;margin-left:0;white-space:nowrap}
+.top.top .nav-actions>:is(a,button){display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 17px;border:1px solid #111;border-radius:0;background:#111;color:#fff;font:700 12px/1.2 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.2px;text-decoration:none;cursor:pointer;transition:background .15s,color .15s}
+.top.top .nav-actions>.secondary{background:#fff;color:#111;border-color:#d5d5d5}
+.top.top .nav-actions>:is(a,button):hover{background:#333;color:#fff}
+.top.top .nav-actions>.secondary:hover{background:#f5f5f5;color:#111}
+
+/* Signed in: the account button replaces Sign Up. */
+html.hub-authed .top.top .nav-actions>a[href*="auth=signup"]{display:none}
+
+@media(min-width:700px){
+  .top.top .nav{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:20px}
+  .top.top .brand{grid-column:1;justify-self:start;min-width:0}
+  .top.top .links{grid-column:2;justify-self:center;margin-left:0;gap:22px;white-space:nowrap}
+  .top.top .nav-actions{grid-column:3;justify-self:end;width:max-content}
+}
+@media(max-width:680px){
+  .top.top{height:62px}
+  .top.top .nav{gap:8px}
+  .top.top .brand{font-size:13px;gap:5px}
+  .top.top .brand-icon{width:24px;height:24px}
+  .top.top .brand small{display:none}
+  .top.top .links{gap:10px}
+  .top.top .links a{font-size:11px;padding:20px 0 18px;line-height:20px}
+  .top.top .nav-actions{gap:5px}
+  .top.top .nav-actions>:is(a,button){min-height:34px;padding:0 8px;font-size:10px;letter-spacing:0}
+}
+@media(max-width:480px){
+  .top.top .brand{font-size:12px;gap:3px}
+  .top.top .links{gap:7px}
+  .top.top .links a{font-size:10px}
+  .top.top .nav-actions>:is(a,button){min-height:32px;padding:0 6px;font-size:9px}
+}
