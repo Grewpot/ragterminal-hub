@@ -144,6 +144,31 @@ window.ragHubOpenAccount = (mode = "signin") => {
   showAuthForm();
 };
 window.ragHubCommunityAPI = {
+  async canDeleteAssets() {
+    const { data: auth, error: authError } = await supabase.auth.getSession();
+    if (authError || !auth.session?.user) return false;
+    const { data, error } = await supabase.functions.invoke("pack-lifecycle", { body: { action: "admin_check" } });
+    return !error && data?.ok === true && data?.is_admin === true;
+  },
+  async deleteAsset(artifactId) {
+    if (!/^[0-9a-f-]{36}$/i.test(artifactId)) throw new Error("Invalid asset ID.");
+    const { data: auth, error: authError } = await supabase.auth.getSession();
+    if (authError) throw authError;
+    if (!auth.session?.user) throw new Error("Please sign in again to delete assets.");
+    const { data, error } = await supabase.functions.invoke("pack-lifecycle", {
+      body: { action: "delete_artifact", artifact_id: artifactId }
+    });
+    if (error) {
+      let message = error.message || "Asset deletion failed.";
+      try {
+        const detail = await error.context?.clone?.json();
+        if (typeof detail?.error === "string") message = detail.error;
+      } catch { /* use the function error */ }
+      throw new Error(message);
+    }
+    if (!data?.ok) throw new Error(data?.error || "Asset deletion did not complete.");
+    return data;
+  },
   async loadStars(artifactIds) {
     const { data: auth, error: authError } = await supabase.auth.getSession();
     if (authError) throw authError;
