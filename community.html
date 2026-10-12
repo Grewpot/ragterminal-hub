@@ -117,6 +117,16 @@ body{background:#fff;color:#111;font-family:Inter,system-ui,-apple-system,"Segoe
 .links a:hover{color:#414141;font-weight:400}
 .links a[aria-current=page]{color:#414141;font-weight:400;border-bottom-color:#111}
 
+
+/* Admin-only catalog deletion control. */
+.card{position:relative}
+.card.admin-can-delete .c-head{padding-right:30px}
+.card .asset-delete{position:absolute;top:10px;right:10px;z-index:2;display:grid;place-items:center;width:26px;height:26px;padding:0;border:1px solid transparent;border-radius:6px;background:#fff;color:#dc2626;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.card .asset-delete svg{display:block;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card .asset-delete:hover{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+.card .asset-delete:focus-visible{outline:2px solid #dc2626;outline-offset:2px}
+.card .asset-delete:disabled{opacity:.55;cursor:wait}
+
 </style>
 <link rel="stylesheet" href="/site-header.css">
 </head><body>
@@ -143,7 +153,7 @@ const demos=[
 {name:"Tool-Aware Agent Router",type:"flow",owner:"mira-labs",description:"Routes tasks to approved tools using explicit capability declarations and fallback paths.",tags:["agents","routing","safety"],stars:68,downloads:870,updated_at:"2026-09-20",license:"Apache-2.0",slug:"tool-aware-router",version:"1.0.0"},
 {name:"Entity & Relationship Demo Graph",type:"knowledge",owner:"graphworks",description:"A small knowledge graph sample with entities, typed relationships and source provenance.",tags:["knowledge-graph","entities","research"],stars:55,downloads:760,updated_at:"2026-09-29",license:"CC BY 4.0",slug:"entity-relationship-demo",version:"1.0.0"},
 {name:"Internal Helpdesk Play",type:"play",owner:"acme-ai",description:"A helpdesk setup tying together approved knowledge, retrieval flow, safety blocks and evaluation.",tags:["support","agents","evaluation"],stars:51,downloads:710,updated_at:"2026-09-11",license:"CC BY-NC 4.0",slug:"internal-helpdesk",version:"1.0.0"}];
-const requestedCategory=new URLSearchParams(location.search).get("category");let assets=[],cat=["knowledge","flow","block","script","play"].includes(requestedCategory)?requestedCategory:"all",side="all",tag="",query="",sort="recent",catalogLoading=true,catalogLoadError=false,catalogErrorMessage="",previewDemos=false,metricsLoading=false,metricsAvailable=false;const starred=new Set();const glyph={knowledge:"▤",flow:"⑂",block:"▦",script:"‹/›",play:"▷"};const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const requestedCategory=new URLSearchParams(location.search).get("category");let assets=[],cat=["knowledge","flow","block","script","play"].includes(requestedCategory)?requestedCategory:"all",side="all",tag="",query="",sort="recent",catalogLoading=true,catalogLoadError=false,catalogErrorMessage="",previewDemos=false,metricsLoading=false,metricsAvailable=false;let canDeleteAssets=false,adminDeleteCheckRevision=0;const starred=new Set();const glyph={knowledge:"▤",flow:"⑂",block:"▦",script:"‹/›",play:"▷"};const $=s=>document.querySelector(s),$=s=>Array.from(document.querySelectorAll(s));
 function notify(t){$("#toast").textContent=t;$("#toast").classList.add("show");setTimeout(()=>$("#toast").classList.remove("show"),2600)}
 function text(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;e.textContent=value??"";return e}
 function fmt(n){return n>=1000?(n/1000).toFixed(1).replace(".0","")+"k":String(n||0)}
@@ -162,6 +172,18 @@ async function refreshStarredState(){
     starred.clear();(result||[]).forEach(id=>starred.add(id));
     render();
   }catch(error){console.warn("Could not load saved community stars",error)}
+}
+async function refreshAdminDeleteAvailability(){
+  const revision=++adminDeleteCheckRevision;
+  const api=window.ragHubCommunityAPI;
+  if(!api||typeof api.canDeleteAssets!=="function"){
+    if(canDeleteAssets){canDeleteAssets=false;render()}
+    return;
+  }
+  let allowed=false;
+  try{allowed=await api.canDeleteAssets()}catch(error){console.warn("Could not verify asset deletion access",error)}
+  if(revision!==adminDeleteCheckRevision)return;
+  if(canDeleteAssets!==allowed){canDeleteAssets=allowed;render()}
 }
 function render(){
   const live=assets.some(a=>a.source==="supabase");
@@ -202,11 +224,33 @@ function render(){
     root.append(empty);return;
   }
   rows.forEach(a=>{
-    const card=text("article","card "+a.type);card.tabIndex=0;
+    const showDelete=canDeleteAssets&&a.source==="supabase";
+    const card=text("article","card "+a.type+(showDelete?" admin-can-delete":""));card.tabIndex=0;
     const head=text("div","c-head","");head.append(text("span","ico",glyph[a.type]||"▤"));
     const titleWrap=text("div","","");titleWrap.style.cssText="min-width:0;flex:1";
     titleWrap.append(text("div","ctitle",a.name),text("div","owner","◉ "+a.owner));
     head.append(titleWrap,text("span","kind",a.type.toUpperCase()));card.append(head,text("p","desc",a.description));
+    if(showDelete){
+      const remove=text("button","asset-delete","");
+      remove.type="button";remove.title="Delete asset";remove.setAttribute("aria-label","Delete "+a.name);
+      remove.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg>';
+      remove.onclick=async e=>{
+        e.stopPropagation();
+        if(!confirm("Delete “"+a.name+"” from the public Community catalog? This cannot be undone."))return;
+        const api=window.ragHubCommunityAPI;
+        if(!api||typeof api.deleteAsset!=="function"){notify("The delete service is still loading. Try again.");return}
+        remove.disabled=true;
+        try{
+          const result=await api.deleteAsset(a.id);
+          notify(result.warning||("Deleted “"+a.name+"” from Community."));
+          await loadCatalog();
+        }catch(error){
+          notify(error.message||"Could not delete this asset. Please retry.");
+          remove.disabled=false;
+        }
+      };
+      card.append(remove);
+    }
     const pills=text("div","pills","");(a.tags||[]).slice(0,3).forEach(t=>{const b=text("button","pill",t);b.onclick=e=>{e.stopPropagation();tag=t;side="all";render()};pills.append(b)});card.append(pills);
     const foot=text("div","foot","");
     if(a.source==="demo")foot.append(text("span","","☆ "+fmt(a.stars)),text("span","","⇩ "+fmt(a.downloads)));
@@ -244,7 +288,7 @@ function render(){
     }
     card.append(foot);
     card.onclick=()=>{if(a.source==="supabase"){window.location.href="/asset.html?id="+encodeURIComponent(a.id)}else notify("Example asset only — sample cards are not published or installable.")};
-    card.onkeydown=e=>{if(e.key==="Enter")card.click()};
+    card.onkeydown=e=>{if(e.key==="Enter"&&e.target===card)card.click()};
     root.append(card);
   });
 }
@@ -338,8 +382,8 @@ async function loadCatalog(){
 }
 window.ragHubReloadCatalog = loadCatalog;
 $$("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;side="all";render()});$$("[data-side]").forEach(b=>b.onclick=()=>{side=b.dataset.side;cat="all";render()});$$("[data-tag]").forEach(b=>b.onclick=()=>{tag=tag===b.dataset.tag?"":b.dataset.tag;side="all";render()});$("#q").oninput=e=>{query=e.target.value.trim();side="all";render()};$("#sort").onchange=e=>{sort=e.target.value;render()};
-window.addEventListener("ragHubCommunityAPIReady",refreshStarredState);
-window.addEventListener("ragHubAuthChanged",refreshStarredState);$("#reset").onclick=()=>{cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value="trending";render()};$("#signin").onclick=null;$("#upload").onclick=null;document.addEventListener("keydown",e=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}});render();loadCatalog();
+window.addEventListener("ragHubCommunityAPIReady",()=>{refreshStarredState();refreshAdminDeleteAvailability()});
+window.addEventListener("ragHubAuthChanged",()=>{refreshStarredState();refreshAdminDeleteAvailability()});$("#reset").onclick=()=>{cat="all";side="all";tag="";query="";sort="trending";$("#q").value="";$("#sort").value="trending";render()};$("#signin").onclick=null;$("#upload").onclick=null;document.addEventListener("keydown",e=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}});render();loadCatalog();
 </script>
 <div id="account-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:#10182888;backdrop-filter:blur(4px);z-index:30">
   <section role="dialog" aria-modal="true" aria-labelledby="account-title" style="width:min(100%,500px);max-height:90vh;overflow:auto;background:#fff;border:1px solid #e4e8ef;border-radius:18px;padding:24px;box-shadow:0 25px 80px #11182733">
